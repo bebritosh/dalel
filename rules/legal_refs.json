@@ -1,0 +1,32 @@
+{
+  "_note": "Stubs only. No article numbers are invented. Each entry is unverified and must be reviewed by a lawyer before use. In the claim these render with the marker «[норма уточняется юристом]».",
+  "refs": [
+    {
+      "id": "right_to_quality",
+      "title": "Право на товар надлежащего качества",
+      "text_template": "Потребитель имеет право на товар надлежащего качества. [норма уточняется юристом]",
+      "source_url": "",
+      "reviewed_by": "",
+      "reviewed_at": "",
+      "unverified": true
+    },
+    {
+      "id": "remedies_for_defect",
+      "title": "Права потребителя при обнаружении недостатков товара",
+      "text_template": "При обнаружении недостатков товара потребитель вправе предъявить требования, предусмотренные законодательством о защите прав потребителей. [норма уточняется юристом]",
+      "source_url": "",
+      "reviewed_by": "",
+      "reviewed_at": "",
+      "unverified": true
+    },
+    {
+      "id": "seller_response_term",
+      "title": "Срок рассмотрения требования продавцом",
+      "text_template": "Продавец обязан рассмотреть требование потребителя в срок, установленный законодательством. [норма уточняется юристом]",
+      "source_url": "",
+      "reviewed_by": "",
+      "reviewed_at": "",
+      "unverified": true
+    }
+  ]
+}

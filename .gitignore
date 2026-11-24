@@ -1,0 +1,15 @@
+.env
+data/
+eval/real/
+eval/last_run.json
+docs/.obsidian/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+node_modules/
+frontend/dist/
+.impeccable/
+.DS_Store
+Thumbs.db

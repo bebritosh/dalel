@@ -1,0 +1,48 @@
+{
+  "_source": "handmade_no_live_llm",
+  "document_type": "receipt",
+  "fields": {
+    "seller_name": {
+      "value": "ТОО «Пример Электроникс»",
+      "line_ids": [
+        0
+      ],
+      "confidence": 0.95
+    },
+    "purchase_date": {
+      "value": "2026-11-05",
+      "line_ids": [
+        3
+      ],
+      "confidence": 0.9
+    },
+    "total_amount": {
+      "value": "249990.00",
+      "line_ids": [
+        9
+      ],
+      "confidence": 0.92
+    },
+    "currency": {
+      "value": "KZT",
+      "line_ids": [
+        9
+      ],
+      "confidence": 0.85
+    },
+    "items": [
+      {
+        "name": "Смартфон X 128GB",
+        "qty": 1,
+        "price": "249990.00",
+        "line_ids": [
+          6,
+          7
+        ]
+      }
+    ]
+  },
+  "unreadable": [
+    "warranty_period"
+  ]
+}

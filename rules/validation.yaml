@@ -1,0 +1,15 @@
+# Validation rules V1-V4 for the MVP. Codes, severities and messages only;
+# the logic lives in app/services/validate.py.
+rules:
+  - id: V1
+    severity: warning
+    message: "Значение не найдено в исходном документе (нет grounding)."
+  - id: V2
+    severity: error
+    message: "Дата покупки некорректна или находится в будущем."
+  - id: V3
+    severity: warning
+    message: "Сумма чека не совпадает с суммой позиций."
+  - id: V4
+    severity: error
+    message: "Нарушен порядок дат: покупка должна быть раньше обращения, обращение — раньше отказа."

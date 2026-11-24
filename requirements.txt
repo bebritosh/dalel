@@ -1,0 +1,17 @@
+# DÄLEL backend dependencies. Install only from prebuilt wheels:
+#   pip install --only-binary=:all: -r requirements.txt
+# Versions are pinned after the first successful install on Python 3.14.
+
+fastapi
+uvicorn
+sqlmodel
+pydantic-settings
+python-multipart
+pytesseract
+pymupdf
+Pillow
+python-docx
+docxtpl
+PyYAML
+httpx
+pytest
