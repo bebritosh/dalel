@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorBox } from "../components/ErrorBox";
 import { ClaimText, type ClaimToken } from "../components/ClaimText";
 import { ReceiptViewer } from "../components/ReceiptViewer";
+import { DeleteCaseButton } from "../components/DeleteCaseButton";
 import { getToken } from "../util/session";
 import { fmtAmount, fmtDate } from "../util/format";
 
@@ -34,24 +35,26 @@ function buildTokens(data: CaseDetail): ClaimToken[] {
 
 function Timer({ deadline }: { deadline: string | null }) {
   const { t } = useI18n();
+  // The 10-day period is a default, not an asserted legal rule (to be confirmed).
+  const note = (
+    <span className="font-medium">{t("claim.timerBefore")}</span>
+  );
   if (!deadline) {
     return (
       <div className="rounded-card border border-border bg-surface px-4 py-3 text-sm">
-        <span className="font-medium">{t("claim.timerBefore")}</span>
+        {note}
         <span className="ml-2 text-muted">{t("claim.timerIdle")}</span>
       </div>
     );
   }
   const end = new Date(`${deadline}T23:59:59`).getTime();
-  const diff = end - Date.now();
-  const days = Math.max(0, Math.floor(diff / 86400000));
-  const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+  const days = Math.max(0, Math.ceil((end - Date.now()) / 86400000));
   return (
     <div className="rounded-card border border-accent/30 bg-accent/5 px-4 py-3 text-sm">
-      <span className="font-medium text-accent">{t("claim.sent")}.</span>{" "}
-      <span className="tabular">
-        {days} дн. {hours} ч.
-      </span>
+      <span className="font-medium text-accent">{t("claim.sent")}.</span> {note}
+      <div className="tabular mt-1">
+        {t("claim.deadlineDate", { date: fmtDate(deadline), n: days })}
+      </div>
     </div>
   );
 }
@@ -232,6 +235,9 @@ export function ClaimPage() {
           </Button>
         </div>
       )}
+      <div className="mt-6">
+        <DeleteCaseButton caseId={caseId} />
+      </div>
     </AppShell>
   );
 }

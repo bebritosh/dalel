@@ -26,6 +26,7 @@ import {
 export class MockClient implements ApiClient {
   private facts: Fact[] = mockFacts.map((f) => ({ ...f }));
   private deadline: string | null = null;
+  private hasPhoto = false;
 
   private delay<T>(value: T): Promise<T> {
     return new Promise((resolve) => setTimeout(() => resolve(value), 180));
@@ -41,6 +42,7 @@ export class MockClient implements ApiClient {
     file: File,
     kind: DocumentKind,
   ): Promise<DocumentDto> {
+    if (kind === "photo") this.hasPhoto = true;
     return this.delay({
       id: kind === "receipt" ? 1 : 2,
       case_id: 1,
@@ -83,7 +85,12 @@ export class MockClient implements ApiClient {
   }
 
   async getMissing(): Promise<MissingItem[]> {
-    return this.delay(mockMissing);
+    // M3 closes once a defect photo has been uploaded (mirrors the backend rule).
+    return this.delay(
+      mockMissing.map((m) =>
+        m.rule_id === "M3" && this.hasPhoto ? { ...m, resolved: true } : m,
+      ),
+    );
   }
 
   async getChecks(): Promise<CheckResult[]> {

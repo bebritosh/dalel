@@ -21,7 +21,7 @@ function readLang(): Lang {
   } catch {
     /* ignore */
   }
-  return "ru";
+  return "en"; // EN by default for the pitch; RU is one click away
 }
 
 interface I18n {

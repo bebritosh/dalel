@@ -54,7 +54,8 @@ export const ru: Record<string, string> = {
   "missing.fix": "Как закрыть",
 
   "claim.timerIdle": "Таймер запустится после отправки",
-  "claim.timerBefore": "До ответа продавца: 10 дней",
+  "claim.timerBefore": "Срок ответа: по умолчанию 10 дней (уточняется)",
+  "claim.deadlineDate": "Ответ до {date} (осталось дней: {n})",
   "claim.download": "Скачать DOCX",
   "claim.markSent": "Отправлено продавцу",
   "claim.sent": "Отправлено",
@@ -63,6 +64,21 @@ export const ru: Record<string, string> = {
   "claim.backToFields": "Вернуться к полям",
   "claim.emptyNeedConfirm": "Сначала подтвердите обязательные поля на экране проверки.",
   "claim.title": "Претензия",
+
+  "delete.button": "Удалить дело",
+  "delete.confirm": "Удалить дело и все загруженные файлы? Это нельзя отменить.",
+
+  "consent.text": "Демо только на синтетических данных. Не загружайте реальные чеки и персональные данные. Файлы обрабатываются на этом сервере для извлечения полей и удаляются в любой момент кнопкой «Удалить дело».",
+  "consent.check": "Я понимаю и согласен(на) на обработку загруженных файлов",
+  "upload.photoHint": "Добавьте фото дефекта (тип «Фото»), чтобы закрыть пункт «нет фото дефекта»",
+
+  "prov.ocr.fixture": "OCR: Fixture",
+  "prov.ocr.tesseract": "Live OCR (Tesseract)",
+  "prov.extract.fixture": "Извлечение: Fixture",
+  "prov.extract.openai": "Live LLM (OpenAI)",
+  "prov.extract.anthropic": "Live LLM (Anthropic)",
+  "prov.extract.rules": "Rule-based baseline",
+  "prov.openaiNote": "Текст чека отправляется внешнему провайдеру (OpenAI)",
 
   "receipt.hint": "Нажмите на сумму или дату в тексте, чтобы увидеть её в чеке",
   "receipt.zoomIn": "Увеличить",

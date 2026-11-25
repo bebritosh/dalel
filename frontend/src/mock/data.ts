@@ -53,6 +53,8 @@ function fact(
     grounded,
     needs_review: !grounded,
     confirmed_by_user: confirmed,
+    ocr_source: "fixture",
+    extract_source: "fixture",
   };
 }
 
@@ -177,6 +179,8 @@ export const mockCase: CaseDetail = {
       sha256: "mock",
       mime_type: "image/svg+xml",
       created_at: new Date().toISOString(),
+      ocr_source: "fixture",
+      extract_source: "fixture",
     },
     {
       id: 2,
@@ -185,6 +189,8 @@ export const mockCase: CaseDetail = {
       sha256: "mock2",
       mime_type: "text/plain",
       created_at: new Date().toISOString(),
+      ocr_source: "fixture",
+      extract_source: "fixture",
     },
   ],
   facts: mockFacts,

@@ -17,8 +17,19 @@ interface Picked {
   error?: string;
 }
 
-function guessKind(file: File): DocumentKind {
-  if (file.type.startsWith("image/")) return "receipt";
+const CONSENT_KEY = "dalel:consent";
+
+function readConsent(): boolean {
+  try {
+    return localStorage.getItem(CONSENT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+// The first image is assumed to be the receipt; further images are defect photos.
+function guessKind(file: File, haveReceipt: boolean): DocumentKind {
+  if (file.type.startsWith("image/")) return haveReceipt ? "photo" : "receipt";
   if (file.name.endsWith(".txt") || file.name.endsWith(".json")) return "chat";
   return "receipt";
 }
@@ -31,15 +42,32 @@ export function UploadPage() {
   const [dragging, setDragging] = useState(false);
   const [step, setStep] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(readConsent);
+
+  function toggleConsent(v: boolean) {
+    setConsent(v);
+    try {
+      localStorage.setItem(CONSENT_KEY, v ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
 
   function addFiles(list: FileList | null) {
     if (!list) return;
-    const picked: Picked[] = Array.from(list).map((file) => ({
-      file,
-      kind: guessKind(file),
-      error: file.size > MAX_BYTES ? t("err.tooLarge") : undefined,
-    }));
-    setFiles((prev) => [...prev, ...picked]);
+    setFiles((prev) => {
+      let haveReceipt = prev.some((p) => p.kind === "receipt");
+      const picked: Picked[] = Array.from(list).map((file) => {
+        const kind = guessKind(file, haveReceipt);
+        if (kind === "receipt") haveReceipt = true;
+        return {
+          file,
+          kind,
+          error: file.size > MAX_BYTES ? t("err.tooLarge") : undefined,
+        };
+      });
+      return [...prev, ...picked];
+    });
   }
 
   function setKind(i: number, kind: DocumentKind) {
@@ -91,6 +119,22 @@ export function UploadPage() {
       <div className="mx-auto max-w-2xl">
         <h1 className="text-[28px] font-bold leading-9">{t("upload.title")}</h1>
         <p className="mt-2 text-muted">{t("upload.subtitle")}</p>
+
+        <div
+          className="mt-4 rounded-card border border-border bg-surface p-4 text-sm"
+          data-testid="consent"
+        >
+          <p className="text-muted">{t("consent.text")}</p>
+          <label className="mt-3 flex items-start gap-2 font-medium">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => toggleConsent(e.target.checked)}
+              className="mt-1"
+            />
+            <span>{t("consent.check")}</span>
+          </label>
+        </div>
 
         <div
           onDragOver={(e) => {
@@ -171,11 +215,17 @@ export function UploadPage() {
         )}
 
         <div className="mt-6">
-          <Button onClick={analyze} disabled={!hasReceipt || anyError || !!step}>
+          <Button
+            onClick={analyze}
+            disabled={!hasReceipt || anyError || !!step || !consent}
+          >
             {step ?? t("upload.analyze")}
           </Button>
           {!hasReceipt && (
             <p className="mt-2 text-sm text-muted">{t("upload.needReceipt")}</p>
+          )}
+          {!files.some((f) => f.kind === "photo") && (
+            <p className="mt-2 text-sm text-muted">{t("upload.photoHint")}</p>
           )}
         </div>
       </div>

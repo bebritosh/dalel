@@ -54,7 +54,8 @@ export const en: Record<string, string> = {
   "missing.fix": "How to fix",
 
   "claim.timerIdle": "The timer starts after sending",
-  "claim.timerBefore": "Seller response due in 10 days",
+  "claim.timerBefore": "Response deadline: default 10 days (to be confirmed)",
+  "claim.deadlineDate": "Due by {date} ({n} days left)",
   "claim.download": "Download DOCX",
   "claim.markSent": "Mark as sent",
   "claim.sent": "Sent",
@@ -63,6 +64,21 @@ export const en: Record<string, string> = {
   "claim.backToFields": "Back to fields",
   "claim.emptyNeedConfirm": "First confirm the required fields on the review screen.",
   "claim.title": "Claim",
+
+  "delete.button": "Delete case",
+  "delete.confirm": "Delete this case and all uploaded files? This cannot be undone.",
+
+  "consent.text": "Demo with synthetic data only. Do not upload real receipts or personal data. Files are processed on this server for extraction and can be deleted at any time with “Delete case”.",
+  "consent.check": "I understand and agree to the processing of the uploaded files",
+  "upload.photoHint": "Add a photo of the defect (kind “Photo”) to close the “no defect photo” item",
+
+  "prov.ocr.fixture": "OCR: Fixture",
+  "prov.ocr.tesseract": "Live OCR (Tesseract)",
+  "prov.extract.fixture": "Extraction: Fixture",
+  "prov.extract.openai": "Live LLM (OpenAI)",
+  "prov.extract.anthropic": "Live LLM (Anthropic)",
+  "prov.extract.rules": "Rule-based baseline",
+  "prov.openaiNote": "Receipt text is sent to an external provider (OpenAI)",
 
   "receipt.hint": "Click an amount or date in the text to see it on the receipt",
   "receipt.zoomIn": "Zoom in",
