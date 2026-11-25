@@ -132,9 +132,23 @@ python3 -m http.server 8080          # Windows: python -m http.server 8080
 - [DECISIONS.md](DECISIONS.md) — решения, что урезано, про фикстуры.
 
 ## Тесты и оценка
-- Тесты бэкенда: `.venv/bin/python -m pytest -q` (macOS, проверено: 29 passed на 25.11); Windows: `.venv\Scripts\python -m pytest -q` (не проверено на Windows).
-- Проверки фронтенда: `cd frontend && npm run typecheck && npm run build`.
+- Тесты бэкенда: Windows — `.venv\Scripts\python -m pytest -q` (на этой машине **85 passed, 1 skipped** на 25.11; skip — конвертация PDF без LibreOffice). macOS — `.venv/bin/python -m pytest -q`.
+- Проверки фронтенда: `cd frontend && npm run typecheck && npm run lint && npm run build && npm run build:mock`.
+- eval: `.venv\Scripts\python eval\run_eval.py --mode rules` (офлайн, нужен Tesseract). `--mode openai` — нужен `OPENAI_API_KEY`.
 - Скриншоты экранов: `frontend/screenshots/` (скрипт `npm run screenshots` требует браузеров Playwright: `npx playwright install`, один раз).
+
+## Что установить для живых режимов (на демо-фикстурах не нужно)
+- **Tesseract OCR** (языки `rus`+`eng`) — для `OCR_ENGINE=tesseract/auto` и для `eval/run_eval.py`. Если не в `PATH`, прописать путь в `.env`: `TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe`. Проверка: `tesseract --list-langs` показывает `rus` и `eng`.
+- **LibreOffice** — для PDF-экспорта. Прописать `SOFFICE_PATH=C:\Program Files\LibreOffice\program\soffice.exe`. Без него PDF отдаёт 503 (DOCX работает).
+- **OpenAI-ключ** — для `LLM_MODE=openai/auto` и openai-цифр eval: `OPENAI_API_KEY=...` в `.env`. `.env` не коммитить.
+
+## Проверка на чистом Windows (ещё не делалась — см. «Открытые проблемы» в PLAN.md)
+1. Клон репозитория, ветка с кодом.
+2. `py -3 -m venv .venv` → `.venv\Scripts\python -m pip install --only-binary=:all: -r requirements.txt`.
+3. `cd frontend && npm install`.
+4. Бэкенд: `.venv\Scripts\python -m uvicorn app.main:app --reload` (на старте в логе — авто-миграция БД, удалять `data\dalel.db` не нужно).
+5. Фронтенд: `npm run dev` → открыть адрес из вывода Vite (обычно 5173; может выбрать следующий свободный).
+6. Демо-сценарий из раздела выше; отдельно — **открыть скачанный DOCX в Word** (ключевая ручная проверка, см. «Открытые проблемы»).
 
 ## Про фикстуры (честно)
 - `eval\fixtures\{sha}.layout.json` — это РАЗМЕТКА генератора чека (истинные строки и
