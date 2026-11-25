@@ -16,6 +16,10 @@ const BASE = process.env.BASE ?? "http://localhost:5173";
 const MODE = process.env.SHOT_MODE ?? "mock";
 const PREFIX = process.env.PREFIX ?? "";
 const DEMO = resolve(__dirname, "..", "..", "eval", "cases", "demo-001");
+// http mode chat file: WhatsApp (chat.txt) by default, Telegram via CHAT_FILE.
+const CHAT_FILE = process.env.CHAT_FILE
+  ? resolve(__dirname, "..", "..", process.env.CHAT_FILE)
+  : resolve(DEMO, "chat.txt");
 
 const VIEWPORTS = [
   { name: "1440x900", width: 1440, height: 900 },
@@ -93,7 +97,7 @@ async function runHttp(browser) {
     await waitText(page, "Новое дело");
     await page.setInputFiles('input[type="file"]', [
       resolve(DEMO, "receipt.png"),
-      resolve(DEMO, "chat.txt"),
+      CHAT_FILE,
     ]);
     await page.waitForTimeout(300);
     await shot(page, `http-upload-${vp.name}`);
