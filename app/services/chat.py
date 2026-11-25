@@ -12,6 +12,7 @@ simple and the user confirms them.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from datetime import date
@@ -136,6 +137,53 @@ def parse_whatsapp(content: str) -> list[ChatMessage]:
             allow_continuation = False
         elif allow_continuation and messages:
             messages[-1].text += " " + line
+    return messages
+
+
+def _telegram_text(value) -> str:
+    """Flatten Telegram's text field (a string or a list of fragments)."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        parts = []
+        for item in value:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                parts.append(str(item.get("text", "")))
+        return "".join(parts)
+    return ""
+
+
+def parse_telegram(content: str) -> list[ChatMessage]:
+    """Parse a Telegram Desktop export (result.json) into messages.
+
+    Only real messages (type == "message") are kept; service messages are
+    skipped. message_id is Telegram's own numeric id as a string.
+    """
+    try:
+        data = json.loads(content)
+    except (ValueError, TypeError):
+        return []
+    raw_messages = data.get("messages", []) if isinstance(data, dict) else []
+    messages: list[ChatMessage] = []
+    for item in raw_messages:
+        if not isinstance(item, dict) or item.get("type") != "message":
+            continue
+        text = _telegram_text(item.get("text", "")).strip()
+        author = str(item.get("from") or "").strip()
+        iso = str(item.get("date") or "")
+        day = normalize_date(iso.split("T")[0]) if iso else None
+        time = iso.split("T")[1][:8] if "T" in iso else ""
+        messages.append(
+            ChatMessage(
+                date=day,
+                time=time,
+                author=author,
+                text=text,
+                message_id=str(item.get("id", "")),
+            )
+        )
     return messages
 
 

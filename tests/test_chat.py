@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.services.chat import detect_events, parse_whatsapp
+import json
+
+from app.services.chat import detect_events, parse_telegram, parse_whatsapp
 
 ANDROID = """06.11.2026, 10:15 - Арман: Здравствуйте! Купил смартфон, экран мигает.
 Отправляю детали позже.
@@ -71,3 +73,47 @@ def test_detect_events_still_works_on_both_formats():
         events = {e.kind.value: e.date for e in detect_events(parse_whatsapp(content), "Пример Электроникс")}
         assert events["contact"] == date(2026, 11, 6)
         assert events["refusal"] == date(2026, 11, 9)
+
+
+TELEGRAM = json.dumps({
+    "name": "Пример Электроникс",
+    "type": "personal_chat",
+    "messages": [
+        {"id": 100, "type": "service", "date": "2026-11-06T09:00:00", "action": "create_group"},
+        {"id": 101, "type": "message", "date": "2026-11-06T10:15:03", "from": "Арман",
+         "from_id": "user1", "text": "Здравствуйте! Купил смартфон, экран мигает."},
+        {"id": 102, "type": "message", "date": "2026-11-08T09:05:00", "from": "Арман",
+         "from_id": "user1", "text": ["Смотрите ", {"type": "link", "text": "http://ex.kz/photo"}, " — вот дефект."]},
+        {"id": 103, "type": "message", "date": "2026-11-09T16:20:47", "from": "Пример Электроникс",
+         "from_id": "user2", "text": "Вернуть деньги не можем, случай не гарантийный."},
+    ],
+}, ensure_ascii=False)
+
+
+def test_telegram_parses_plain_message():
+    msgs = parse_telegram(TELEGRAM)
+    assert len(msgs) == 3  # service message skipped
+    assert msgs[0].message_id == "101"
+    assert msgs[0].date == date(2026, 11, 6)
+    assert msgs[0].time == "10:15:03"
+    assert msgs[0].author == "Арман"
+
+
+def test_telegram_flattens_fragment_text_with_link():
+    msgs = parse_telegram(TELEGRAM)
+    assert msgs[1].text == "Смотрите http://ex.kz/photo — вот дефект."
+
+
+def test_telegram_service_messages_skipped():
+    msgs = parse_telegram(TELEGRAM)
+    assert all(m.message_id != "100" for m in msgs)
+
+
+def test_telegram_detect_events():
+    events = {e.kind.value: e.date for e in detect_events(parse_telegram(TELEGRAM), "Пример Электроникс")}
+    assert events["contact"] == date(2026, 11, 6)
+    assert events["refusal"] == date(2026, 11, 9)
+
+
+def test_telegram_invalid_json_returns_empty():
+    assert parse_telegram("{not json") == []
