@@ -1,0 +1,19 @@
+# Dictionary rules for detecting timeline events from chat messages.
+# No model is involved: matching is case-insensitive substring over the
+# message text. Every detected event carries the source message_id and is
+# marked needs_review=true for the user to confirm.
+#
+# Event kinds derived here:
+#   contact  - first message from the buyer (a non-seller author)
+#   reply    - first seller message that is not itself a refusal
+#   refusal  - first seller message containing a refusal phrase below
+
+refusal_keywords:
+  - "не можем"
+  - "отказ"
+  - "отказыва"
+  - "не подлежит"
+  - "не гарантийн"
+  - "не возврат"
+  - "возврат невозмож"
+  - "отказать"

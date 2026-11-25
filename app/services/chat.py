@@ -16,9 +16,15 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import date
+from functools import lru_cache
+from pathlib import Path
+
+import yaml
 
 from app.models import EventKind
 from app.services.extract.normalize import normalize_date
+
+_RULES_PATH = Path(__file__).resolve().parents[2] / "rules" / "chat_events.yaml"
 
 # Android: "06.11.2026, 10:15 - Author Name: message text" (time may carry seconds / AM-PM).
 _ANDROID_RE = re.compile(
@@ -66,15 +72,14 @@ _SYSTEM_SUBSTRINGS = (
     "<attached",
 )
 
-_REFUSAL_KEYWORDS = (
-    "не можем",
-    "отказ",
-    "отказыва",
-    "не подлежит",
-    "не гарантийн",
-    "не возврат",
-    "возврат невозмож",
-)
+@lru_cache(maxsize=1)
+def _refusal_keywords() -> tuple[str, ...]:
+    """Refusal phrases from rules/chat_events.yaml (dictionary, not a model)."""
+    try:
+        data = yaml.safe_load(_RULES_PATH.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return ()
+    return tuple(str(k).casefold() for k in data.get("refusal_keywords", []))
 
 
 @dataclass
@@ -95,6 +100,7 @@ class DetectedEvent:
     date: date | None
     kind: EventKind
     description: str
+    message_id: str  # source message; an event is never created without one
 
 
 def _is_system(text: str) -> bool:
@@ -197,36 +203,61 @@ def _is_seller(author: str, seller_name: str) -> bool:
     return bool(_tokens(author) & _tokens(seller_name))
 
 
+def _is_refusal(text: str) -> bool:
+    low = text.casefold()
+    return any(k in low for k in _refusal_keywords())
+
+
 def detect_events(
     messages: list[ChatMessage], seller_name: str = ""
 ) -> list[DetectedEvent]:
-    """Detect first contact (buyer) and refusal (seller) events."""
+    """Detect contact (buyer), reply (seller) and refusal (seller) events.
+
+    Rules come from rules/chat_events.yaml. Only messages that carry a
+    message_id can become events, so no event is created without a source.
+    """
     events: list[DetectedEvent] = []
+    sourced = [m for m in messages if m.message_id]
 
     # First message from the buyer (a non-seller author) is the first contact.
-    for msg in messages:
+    for msg in sourced:
         if not _is_seller(msg.author, seller_name):
             events.append(
                 DetectedEvent(
                     date=msg.date,
                     kind=EventKind.contact,
                     description=f"Первое обращение к продавцу: «{msg.text[:120]}»",
+                    message_id=msg.message_id,
                 )
             )
             break
 
-    # First seller message containing refusal wording is the refusal.
-    for msg in messages:
-        if _is_seller(msg.author, seller_name):
-            low = msg.text.casefold()
-            if any(k in low for k in _REFUSAL_KEYWORDS):
-                events.append(
-                    DetectedEvent(
-                        date=msg.date,
-                        kind=EventKind.refusal,
-                        description=f"Отказ продавца: «{msg.text[:120]}»",
-                    )
-                )
-                break
+    # First seller message that refuses; the first non-refusing seller message
+    # before it (if any) is a plain reply.
+    refusal_msg = next((m for m in sourced if _is_seller(m.author, seller_name) and _is_refusal(m.text)), None)
+    for msg in sourced:
+        if not _is_seller(msg.author, seller_name):
+            continue
+        if refusal_msg is not None and msg.message_id == refusal_msg.message_id:
+            break
+        events.append(
+            DetectedEvent(
+                date=msg.date,
+                kind=EventKind.reply,
+                description=f"Ответ продавца: «{msg.text[:120]}»",
+                message_id=msg.message_id,
+            )
+        )
+        break
+
+    if refusal_msg is not None:
+        events.append(
+            DetectedEvent(
+                date=refusal_msg.date,
+                kind=EventKind.refusal,
+                description=f"Отказ продавца: «{refusal_msg.text[:120]}»",
+                message_id=refusal_msg.message_id,
+            )
+        )
 
     return events

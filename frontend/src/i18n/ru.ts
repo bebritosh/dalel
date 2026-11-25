@@ -97,6 +97,7 @@ export const ru: Record<string, string> = {
   "event.purchase": "Покупка",
   "event.defect": "Дефект",
   "event.contact": "Обращение",
+  "event.reply": "Ответ продавца",
   "event.refusal": "Отказ",
   "event.other": "Другое",
 };

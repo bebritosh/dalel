@@ -3,7 +3,7 @@
 
 export type DocumentKind = "receipt" | "chat" | "photo" | "warranty";
 export type CaseStatus = "draft" | "extracted" | "confirmed" | "claim_ready";
-export type EventKind = "purchase" | "defect" | "contact" | "refusal" | "other";
+export type EventKind = "purchase" | "defect" | "contact" | "reply" | "refusal" | "other";
 
 export interface CaseCreated {
   id: number;
@@ -57,6 +57,7 @@ export interface TimelineEvent {
   kind: EventKind;
   description: string;
   document_id: number | null;
+  message_id?: string | null;
   needs_review: boolean;
 }
 

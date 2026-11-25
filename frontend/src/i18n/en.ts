@@ -97,6 +97,7 @@ export const en: Record<string, string> = {
   "event.purchase": "Purchase",
   "event.defect": "Defect",
   "event.contact": "Contact",
+  "event.reply": "Seller reply",
   "event.refusal": "Refusal",
   "event.other": "Other",
 };

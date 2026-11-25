@@ -17,4 +17,5 @@ class EventRead(BaseModel):
     kind: EventKind
     description: str
     document_id: int | None
+    message_id: str | None = None
     needs_review: bool
