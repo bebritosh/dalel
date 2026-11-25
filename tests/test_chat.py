@@ -117,3 +117,34 @@ def test_telegram_detect_events():
 
 def test_telegram_invalid_json_returns_empty():
     assert parse_telegram("{not json") == []
+
+
+def test_events_carry_message_id():
+    events = detect_events(parse_whatsapp(ANDROID), "Пример Электроникс")
+    assert all(e.message_id for e in events)
+    by_kind = {e.kind.value: e for e in events}
+    assert by_kind["contact"].message_id == "line:0"
+
+
+def test_reply_detected_before_refusal():
+    kinds = [e.kind.value for e in detect_events(parse_whatsapp(ANDROID), "Пример Электроникс")]
+    # seller first acknowledges ("Пришлите фото") then refuses later.
+    assert kinds == ["contact", "reply", "refusal"]
+
+
+def test_no_reply_when_seller_refuses_immediately():
+    content = (
+        "06.11.2026, 10:15 - Арман: Купил смартфон, экран мигает.\n"
+        "06.11.2026, 11:00 - Пример Электроникс: Вернуть деньги не можем, не гарантийный случай.\n"
+    )
+    kinds = [e.kind.value for e in detect_events(parse_whatsapp(content), "Пример Электроникс")]
+    assert kinds == ["contact", "refusal"]
+
+
+def test_no_event_without_source_message_id():
+    from app.services.chat import ChatMessage
+
+    msgs = [
+        ChatMessage(date=date(2026, 11, 6), time="10:15", author="Арман", text="Привет", message_id=""),
+    ]
+    assert detect_events(msgs, "Пример Электроникс") == []
