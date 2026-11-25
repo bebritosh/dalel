@@ -155,3 +155,41 @@
 | 10 | Фронтенд: приём `.mp4` (accept + guessKind video→photo), бейдж источника события (WhatsApp/Telegram по `message_id`) в Timeline, кнопка «Скачать PDF» (при 503 показывает текст сервера, не падает). Скриншоты 1440×900 и 390×844 в mock и http (`frontend/screenshots/`). | typecheck+build+build:mock зелёные; 12 скриншотов сняты (Chromium установлен) | Скрипт скриншотов поправлен под HashRouter и EN-дефолт (ставит ru/consent через storage). mock-клиент для PDF отдаёт те же 503-текст. |
 | 11 | E2E для WhatsApp и Telegram: синтетическое Telegram-дело `eval/cases/demo-tg-001/` (тот же чек → те же фикстуры, переписка в JSON); `tests/test_e2e.py` (API-путь обоих источников, нет ключа, rules-офлайн); UI-скриншоты WhatsApp (`http-*`) и Telegram (`tg-http-*`, плашка «Telegram»). `docs/E2E.md`. | +`tests/test_e2e.py` (4 теста); всего **83 passed, 1 skipped**; 6 Telegram-скриншотов | Путь rules и fixture проходит без `OPENAI_API_KEY` (проверено тестом). |
 | 12 | Документы: DECISIONS.md (пересмотр Telegram/PDF/видео/фото), PLAN.md (статус шагов), HANDOFF.md (TESSERACT_CMD, SOFFICE_PATH, авто-миграция БД), README.md (честный статус, 83 passed, PDF 503, mp4, фото-проверки). | — | Итог автономной работы оформлен ниже. |
+
+---
+
+## Итоговый отчёт автономной работы (25.11)
+
+### Сделано по шагам
+- **Шаг 1 — база.** `pytest` 50 passed (журнал ошибочно писал 49), typecheck/build зелёные. eval не воспроизводится: Tesseract не установлен, раннеру он нужен для OCR в любом режиме. Поддержка `TESSERACT_CMD` уже была в конфиге.
+- **Шаг 2 — БД.** Авто-миграция `reconcile_columns` (ADD COLUMN на старте, неразрушающе); требование удалять `data/dalel.db` снято; `Event.message_id`; `scripts/reset_db.py`. На живом старте бэкенда миграция реально добавила 3 колонки в существующую БД.
+- **Шаг 3 — WhatsApp.** Android и iOS форматы, многострочные, пропуск системных строк; `message_id="line:N"`.
+- **Шаг 4 — Telegram.** Парсер `result.json`: служебные пропускаются, `text` строкой/фрагментами, `message_id`=id.
+- **Шаг 5 — события.** `rules/chat_events.yaml` (словарь), виды contact/reply/refusal, `message_id` на каждом, нет события без источника; timeline из .txt и .json.
+- **Шаг 6 — DOCX.** Guard по финальному тексту DOCX + запрет остаточных плейсхолдеров (`ExportError`).
+- **Шаг 7 — PDF.** LibreOffice headless, `SOFFICE_PATH`; нет soffice → 503; неизвестный формат → 400.
+- **Шаг 8 — фото.** Pillow: разрешение/размытость(FIND_EDGES)/экспозиция/EXIF-дата (P1–P4, warning). EXIF-поворот и M3 уже были.
+- **Шаг 9 — видео.** mp4 как kind=photo, 15 МБ, без анализа, закрывает M3.
+- **Шаг 10 — фронтенд.** Приём mp4, плашка источника события, кнопка PDF с 503-текстом, скриншоты mock+http (WhatsApp и Telegram).
+- **Шаг 11 — E2E.** `tests/test_e2e.py` (WhatsApp+Telegram через API, нет ключа, rules офлайн); UI-скриншоты обоих источников; `docs/E2E.md`.
+- **Шаг 12 — документы.** DECISIONS/PLAN/HANDOFF/README обновлены.
+
+### Числа
+- Бэкенд: **83 passed, 1 skipped** (skip — конвертация PDF без LibreOffice). Было 50 на старте → +33 теста.
+- Фронтенд: typecheck, `build`, `build:mock` — зелёные.
+- eval: не запускался на этой машине (нет Tesseract). Цифры openai — из журнала (grounding 57/58, guard 9/9, товар 94%), не воспроизведены.
+
+### Не сделано и почему
+- **Прогон eval с цифрами** — нет Tesseract (раннер требует его для OCR). Не стоп-условие, зафиксировано.
+- **Реальный PDF-файл** — нет LibreOffice; путь реализован, тест конвертации в skip, поведение без soffice (503) покрыто тестами.
+- **Живой OpenAI/Anthropic** — нет ключа; fixture и rules самодостаточны и покрыты тестами.
+- **Пороги фото-проверок** подобраны эвристически (нет реальных фото) — возможно, потребуют калибровки.
+
+### Что нужно от тебя
+1. Установить **Tesseract** (язык `rus`) и при необходимости задать `TESSERACT_CMD` — тогда прогоню eval и впишу реальную базовую линию.
+2. Установить **LibreOffice** и задать `SOFFICE_PATH` — тогда PDF-экспорт отдаст реальный файл (сейчас 503).
+3. При наличии — **`OPENAI_API_KEY`** в `.env` для живого пути и openai-цифр eval.
+4. Проверка на **чистом Windows** по HANDOFF (клон → venv → миграция на старте → демо).
+
+### Коммиты (ветка opus/2026-11-25, не запушены)
+0b8947d Шаг 1; 0d2cfca Шаг 2; e88766d Шаг 3; ddc952e Шаг 4; 9423640 Шаг 5; f26e76c Шаг 5 (доп.); d1f85e0 Шаг 6; 215e628 Шаг 7; 852afdc Шаг 8; b5f3791 Шаг 9; b1343c7 Шаг 10; d16627c Шаг 11; 5f00a48 Шаг 12.
