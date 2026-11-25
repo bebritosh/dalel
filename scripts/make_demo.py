@@ -45,6 +45,8 @@ CHAT = """06.11.2026, 10:15 - Арман Серіков: Здравствуйт�
 
 def _font(size: int) -> ImageFont.FreeTypeFont:
     for candidate in (
+        "/System/Library/Fonts/Supplemental/Arial.ttf",  # macOS
+        "/System/Library/Fonts/Helvetica.ttc",  # macOS
         "C:/Windows/Fonts/arial.ttf",
         "C:/Windows/Fonts/segoeui.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
