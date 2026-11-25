@@ -1,7 +1,7 @@
 # DÄLEL — 5-minute pitch (EN)
 
 Total target: 4:55 (5 s buffer). Slide numbers follow the current deck (8 slides). Wording of slides: see `SLIDES_UPDATE.md`.
-Numbers in `{{...}}` come only from the real eval run. If a number is missing, skip the sentence. Say "synthetic" every time you give a number.
+Numbers come only from the real eval run of 25.11.2026 (9 synthetic cases). If a number is missing, skip the sentence. Say "synthetic" every time you give a number.
 
 | Slide | Time | Cumulative |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ Numbers in `{{...}}` come only from the real eval run. If a number is missing, s
 
 ## Slide 4 — Technology (0:40)
 "Why you can trust the draft. Three rules, enforced in code. One: the model only proposes values and line numbers. Code copies the text and coordinates from the OCR. Two: a field enters the claim only after the user confirms it. Three: an export gate scans the claim, and any number or date that is not a confirmed fact blocks the export. Legal references are not written by the model. They come from a fixed file, and today they are placeholders until a lawyer reviews them. We do not invent articles."
-- With eval: "On {{EVAL_N_CASES}} synthetic receipts, with live Tesseract OCR, the total amount was correct in {{EVAL_TOTAL_ACC}}%, facts were grounded to a receipt line in {{EVAL_GROUNDING}}%, and invented values were {{EVAL_HALLUCINATION}}%. When we substitute the amount, the guard blocked {{EVAL_GUARD_BLOCKED}}. These are synthetic receipts, not a claim about every receipt."
+- With eval: "On 9 synthetic receipts, with live Tesseract OCR, the total amount was correct in 100%, facts were grounded to a receipt line in 98%, and values not found verbatim in the receipt were 2% (1 of 58, flagged for review). When we substitute the amount, the guard blocked 9 of 9. These are synthetic receipts, not a claim about every receipt."
 
 ## Slide 5 — Prototype + live demo (1:30)
 Say on the slide (10 s): "This is a working prototype on synthetic data. Let me show it." Then switch to the live demo (70–90 s, below), come back to the slide deck for slide 6.
@@ -52,7 +52,7 @@ Fallbacks: backend down → open the mock build (`VITE_API_MODE=mock`); everythi
 Do not say: "works on any receipt", "AI knows the law", "the claim is legally valid".
 
 ## Slide 6 — Metrics and SDG (0:35)
-"We measure outcomes, not social impact before a pilot. On {{EVAL_N_CASES}} synthetic cases: total amount accuracy {{EVAL_TOTAL_ACC}}%, grounded facts {{EVAL_GROUNDING}}%, invented values {{EVAL_HALLUCINATION}}%, and a claim in about {{EVAL_TIME_TO_CLAIM}} seconds from upload. For SDG 16.3 this lowers the barrier to the first step without a lawyer. For SDG 12 it makes consumer disputes easier to document. The real test will be a pilot with users."
+"We measure outcomes, not social impact before a pilot. On 9 synthetic cases: total amount accuracy 100%, grounded facts 98%, unverified values 2% (1 of 58, flagged for review), and a claim in about 2.2 seconds from upload. For SDG 16.3 this lowers the barrier to the first step without a lawyer. For SDG 12 it makes consumer disputes easier to document. The real test will be a pilot with users."
 - If the eval has not run, replace the numbers with: "We built an evaluation on synthetic receipts and we will show results once they are final." Better: do not mention it.
 
 ## Slide 7 — Team and delivery (0:25)

@@ -1,6 +1,6 @@
 # DÄLEL — jury Q&A (EN, short, honest)
 
-Placeholders `{{...}}` are filled from the real eval run. Do not quote a number you did not run.
+Numbers come from the real eval run of 25.11.2026 (9 synthetic cases, `eval/results/openai-20261125-1452.json`). Do not quote a number you did not run.
 
 ## Required questions
 
@@ -8,7 +8,7 @@ Placeholders `{{...}}` are filled from the real eval run. Do not quote a number 
 A general chat can write a nice letter, but it can also change a date or an amount and you will not notice. DÄLEL links every amount and date to a line of your receipt, requires your confirmation, and blocks the export if any number or date is not a confirmed fact. It also shows what evidence is missing. We have not run a systematic comparison with a general chat, so we do not claim a number for it.
 
 **What if OCR is wrong?**
-It will sometimes be. That is why nothing enters the claim until the user confirms the field, and the user sees the highlighted receipt line next to the value. Fields that cannot be read are shown as "not recognized", not guessed. On {{EVAL_N_CASES}} synthetic receipts the total amount was correct in {{EVAL_TOTAL_ACC}}%; the errors are what the confirmation step is for. Blurry real-world photos will be worse, and we have not measured them.
+It will sometimes be. That is why nothing enters the claim until the user confirms the field, and the user sees the highlighted receipt line next to the value. Fields that cannot be read are shown as "not recognized", not guessed. On 9 synthetic receipts the total amount was correct in 100%; the errors are what the confirmation step is for. Blurry real-world photos will be worse, and we have not measured them.
 
 **What about personal data?**
 The demo uses only synthetic data. Locally the files stay on the machine. In the live extraction mode the OCR text of the receipt is sent to an external model provider (OpenAI), so real receipts must not be used until consent, a data-processing agreement and a deletion flow are in place. The app has a delete-case function. Compliance with Kazakhstan personal-data law has not been reviewed by a lawyer yet.
@@ -20,7 +20,7 @@ No. The interface says so. DÄLEL organizes the user's own evidence and prepares
 Today, from a fixed file with placeholders marked "to be clarified by a lawyer". We deliberately did not put in article numbers or quotes, because we have not verified them against the primary source. The model is not allowed to write legal references. Next step: a lawyer reviews and fills the file, with a source and a review date for each entry.
 
 **Is the OCR live or fixtures?**
-Both, and the interface shows which. The demo receipt uses saved results (fixtures) so that the demo is reliable and works offline. A new receipt goes through live Tesseract OCR and the extractor. The source badge on the review screen says "Fixture", "Live OCR" or "Live LLM". The fixtures were generated from our own synthetic receipt and are not presented as OCR results. The evaluation numbers come from the live path on {{EVAL_N_CASES}} synthetic cases.
+Both, and the interface shows which. The demo receipt uses saved results (fixtures) so that the demo is reliable and works offline. A new receipt goes through live Tesseract OCR and the extractor. The source badge on the review screen says "Fixture", "Live OCR" or "Live LLM". The fixtures were generated from our own synthetic receipt and are not presented as OCR results. The evaluation numbers come from the live path on 9 synthetic cases.
 
 ## More likely questions
 
@@ -40,10 +40,10 @@ The MVP covers one scenario, defective goods, on purpose. The pipeline (document
 General AI chats and legal-template sites: they write text but do not trace facts to sources. Law firms and legal clinics: reliable but slow and costly for small claims. Marketplace complaint forms: limited to their own platform. We have not done a full market review; we compete on traceability and on the guard.
 
 **Can the model make something up?**
-The model returns only values and line ids; text and coordinates are copied by code. Values that cannot be found in the receipt lines stay "needs review". The guard checks the final text. On {{EVAL_N_CASES}} synthetic cases invented values were {{EVAL_HALLUCINATION}}%. This is not a proof for all inputs.
+The model returns only values and line ids; text and coordinates are copied by code. Values that cannot be found in the receipt lines stay "needs review". The guard checks the final text. On 9 synthetic cases values not found verbatim in the receipt were 2% (1 of 58, flagged for review). This is not a proof for all inputs.
 
 **Does it work on any receipt?**
-We do not claim that. We tested on {{EVAL_N_CASES}} synthetic receipts with different noise levels. Real-world receipts (thermal paper, glare, other layouts) need a pilot.
+We do not claim that. We tested on 9 synthetic receipts with different noise levels. Real-world receipts (thermal paper, glare, other layouts) need a pilot.
 
 **What is left to do?**
 A lawyer review of the legal set, real-user pilot, more chat formats, Kazakh interface, consent and data-protection work, and a larger evaluation.

@@ -1,19 +1,24 @@
 # DÄLEL — slide text updates (EN)
 
 Source deck: `~/Downloads/DALEL_Hackathon_Registration_2026.pdf` (8 slides; the repo has no editable source, so this file is copy-paste wording).
-Rule: no number goes on a slide unless it comes from a real run. Placeholders `{{...}}` are filled from `python eval/run_eval.py` (`eval/last_run.json`). If a number is not available, delete the whole line, do not guess.
+Rule: no number goes on a slide unless it comes from a real run. The numbers below are filled from the real run of 25.11.2026: `python eval/run_eval.py --mode openai` (snapshot `eval/results/openai-20261125-1452.json`; 9 synthetic cases, live Tesseract `rus+eng`, OpenAI `gpt-5.4-mini`). If you rerun the eval, update them.
 
-## Placeholders
+Honest notes for the speaker:
+- The "2% not found in receipt text" is **1 of 58 values**: on the blurred receipt (case-008) OCR read the date as `12.05 2026` (dot lost), the model normalised it to `2026-05-12` (correct vs gold), and the code did not find that value verbatim, so the fact stayed **ungrounded / needs review**. Nothing was silently accepted.
+- Weak spot: item names, 94% (case-009, small font: OCR read «Чехол» as «Yexon»). The rule-based baseline gets items right in only 50% of cases (vs 94% with the LLM); its total amount is also 100% on this set.
+- The synthetic set is relatively easy for Tesseract; these are not numbers for real phone photos.
 
-| Placeholder | Meaning | Source |
+## Numbers (25.11.2026 run)
+
+| Value | Meaning | Source |
 | --- | --- | --- |
-| `{{EVAL_N_CASES}}` | number of synthetic cases in the run | eval |
-| `{{EVAL_TOTAL_ACC}}` | accuracy of the total amount field, % | eval |
-| `{{EVAL_GROUNDING}}` | share of facts that match their cited receipt lines, % | eval |
-| `{{EVAL_HALLUCINATION}}` | share of extracted values not found in the receipt text, % (target 0) | eval |
-| `{{EVAL_TIME_TO_CLAIM}}` | median time from upload to claim, seconds | eval |
-| `{{EVAL_GUARD_BLOCKED}}` | substituted-amount tests blocked by the guard, "x of y" | eval |
-| `{{EVAL_BASELINE_TOTAL_ACC}}` | total-amount accuracy of the rule-based baseline, % (optional) | eval |
+| `9` | number of synthetic cases in the run | eval |
+| `100` | accuracy of the total amount field, % | eval |
+| `98` | share of facts that match their cited receipt lines, % | eval |
+| `2` | share of extracted values not found in the receipt text, % (target 0) | eval |
+| `2.2` | median time from upload to claim, seconds | eval |
+| `9 of 9` | substituted-amount tests blocked by the guard, "x of y" | eval |
+| `100` | total-amount accuracy of the rule-based baseline, % (optional) | eval |
 
 Always write "synthetic" next to any number. Never write "works on any receipt".
 
@@ -53,12 +58,12 @@ Bottom line, replace "No fabricated legal references: use a fixed, reviewed rule
 "The model returns only values and line ids. Code copies text and coordinates. Legal references come from a fixed file, pending lawyer review. Nothing is invented."
 
 New strip under the cards (only after the eval run; "N synthetic cases" label is mandatory):
-> **Measured on {{EVAL_N_CASES}} synthetic receipts (live Tesseract OCR + extractor):**
-> total amount correct in {{EVAL_TOTAL_ACC}}% · facts grounded to a receipt line {{EVAL_GROUNDING}}% · invented values {{EVAL_HALLUCINATION}}% · substituted amount blocked by the guard: {{EVAL_GUARD_BLOCKED}}
+> **Measured on 9 synthetic receipts (live Tesseract OCR + extractor):**
+> total amount correct in 100% · facts grounded to a receipt line 98% · unverified values 2% (1 of 58, flagged for review) · substituted amount blocked by the guard: 9 of 9
 
 Footnote: "Synthetic data only. Not a claim about real-world receipts."
 
-If the baseline number is available, add: "Rule-based baseline for comparison: {{EVAL_BASELINE_TOTAL_ACC}}% on the same cases."
+If the baseline number is available, add: "Rule-based baseline for comparison: 100% on the same cases."
 
 ---
 
@@ -100,12 +105,12 @@ Do not write: "works on any receipt", "fully automatic", "PDF export".
 
 ## Slide 6 — Purpose and metrics
 
-Keep the SDG cards (SDG 16.3 and SDG 12). Change the heading "WHAT WE WILL MEASURE" to **"WHAT WE MEASURED · {{EVAL_N_CASES}} synthetic cases"** (only once the run exists; otherwise keep "WHAT WE MEASURE" and show no numbers).
+Keep the SDG cards (SDG 16.3 and SDG 12). Change the heading "WHAT WE WILL MEASURE" to **"WHAT WE MEASURED · 9 synthetic cases"** (only once the run exists; otherwise keep "WHAT WE MEASURE" and show no numbers).
 
 Three tiles (same names as now, plus the numbers):
-1. "Extraction accuracy · dates, prices, seller" — "Total amount: {{EVAL_TOTAL_ACC}}%" (the per-field table goes into the speaker notes or a backup slide).
-2. "Source coverage · facts linked to files" — "Grounded facts: {{EVAL_GROUNDING}}% · invented values: {{EVAL_HALLUCINATION}}%"
-3. "Preparation time · upload to claim" — "Median {{EVAL_TIME_TO_CLAIM}} s with the tool" (computed in the eval run; do not add a "manual" figure, we have not measured it).
+1. "Extraction accuracy · dates, prices, seller" — "Total amount: 100%" (the per-field table goes into the speaker notes or a backup slide).
+2. "Source coverage · facts linked to files" — "Grounded facts: 98% · unverified values: 2% (1 of 58, flagged for review)"
+3. "Preparation time · upload to claim" — "Median 2.2 s with the tool" (computed in the eval run; do not add a "manual" figure, we have not measured it).
 
 Sub-line under the tiles: "Synthetic receipts generated by us. Real-user results will come from a pilot."
 
