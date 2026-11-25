@@ -76,6 +76,7 @@ export function ClaimPage() {
   const [needConfirm, setNeedConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pdfNote, setPdfNote] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -122,6 +123,23 @@ export function ClaimPage() {
     a.download = `pretenziya_case_${caseId}.docx`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function downloadPdf() {
+    if (!token) return;
+    setPdfNote(null);
+    try {
+      const blob = await api.exportClaim(caseId, token, "pdf");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pretenziya_case_${caseId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      // LibreOffice may be absent (503): show the server's message, do not crash.
+      setPdfNote(e instanceof ApiError ? e.message : t("common.error"));
+    }
   }
 
   async function markSent() {
@@ -228,11 +246,21 @@ export function ClaimPage() {
       </div>
 
       {!violations && claim && (
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button onClick={download}>{t("claim.download")}</Button>
-          <Button variant="secondary" onClick={markSent}>
-            {t("claim.markSent")}
-          </Button>
+        <div className="mt-6">
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={download}>{t("claim.download")}</Button>
+            <Button variant="secondary" onClick={downloadPdf}>
+              {t("claim.downloadPdf")}
+            </Button>
+            <Button variant="secondary" onClick={markSent}>
+              {t("claim.markSent")}
+            </Button>
+          </div>
+          {pdfNote && (
+            <p className="mt-3 text-sm text-muted" role="status">
+              {pdfNote}
+            </p>
+          )}
         </div>
       )}
       <div className="mt-6">

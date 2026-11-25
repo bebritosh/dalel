@@ -30,6 +30,7 @@ function readConsent(): boolean {
 // The first image is assumed to be the receipt; further images are defect photos.
 function guessKind(file: File, haveReceipt: boolean): DocumentKind {
   if (file.type.startsWith("image/")) return haveReceipt ? "photo" : "receipt";
+  if (file.type.startsWith("video/") || file.name.endsWith(".mp4")) return "photo";
   if (file.name.endsWith(".txt") || file.name.endsWith(".json")) return "chat";
   return "receipt";
 }
@@ -163,7 +164,7 @@ export function UploadPage() {
             ref={inputRef}
             type="file"
             multiple
-            accept=".jpg,.jpeg,.png,.pdf,.txt,.json"
+            accept=".jpg,.jpeg,.png,.pdf,.txt,.json,.mp4"
             className="hidden"
             onChange={(e) => addFiles(e.target.files)}
           />

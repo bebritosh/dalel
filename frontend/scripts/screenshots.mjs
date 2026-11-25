@@ -57,13 +57,16 @@ async function runMock(browser) {
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("dalel:lang", "ru");
+      sessionStorage.setItem("case:1", "mock");
+    });
 
     await page.goto(`${BASE}/`);
     await waitText(page, "Новое дело");
     await shot(page, `upload-${vp.name}`);
 
-    await page.addInitScript(() => sessionStorage.setItem("case:1", "mock"));
-    await page.goto(`${BASE}/case/1/review?token=mock`);
+    await page.goto(`${BASE}/#/case/1/review`);
     await waitText(page, "Поля из чека");
     await shot(page, `review-${vp.name}`);
 
@@ -81,6 +84,10 @@ async function runHttp(browser) {
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("dalel:lang", "ru");
+      localStorage.setItem("dalel:consent", "1"); // synthetic demo data only
+    });
 
     await page.goto(`${BASE}/`);
     await waitText(page, "Новое дело");

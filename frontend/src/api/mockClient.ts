@@ -1,4 +1,4 @@
-import { ApiClient } from "./client";
+import { ApiClient, ApiError } from "./client";
 import type {
   CaseCreated,
   CaseDetail,
@@ -107,7 +107,20 @@ export class MockClient implements ApiClient {
     });
   }
 
-  async exportClaim(): Promise<Blob> {
+  async exportClaim(
+    _caseId: number,
+    _token: string,
+    format: "docx" | "pdf" = "docx",
+  ): Promise<Blob> {
+    // Mock has no LibreOffice, so PDF mirrors the real 503 the backend returns.
+    if (format === "pdf") {
+      await this.delay(null);
+      throw new ApiError(
+        503,
+        "LibreOffice (soffice) не найден. Установите LibreOffice и задайте " +
+          "SOFFICE_PATH в .env, либо экспортируйте DOCX.",
+      );
+    }
     // Mock export: a plain-text stand-in (not a real .docx).
     return this.delay(
       new Blob([mockClaimText], { type: "text/plain;charset=utf-8" }),

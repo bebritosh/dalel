@@ -83,6 +83,7 @@ export const mockEvents: TimelineEvent[] = [
     kind: "contact",
     description: "Первое обращение к продавцу: «экран мигает и сильно греется»",
     document_id: 2,
+    message_id: "line:0",
     needs_review: true,
   },
   {
@@ -91,6 +92,7 @@ export const mockEvents: TimelineEvent[] = [
     kind: "refusal",
     description: "Отказ продавца: «вернуть деньги не можем, случай не гарантийный»",
     document_id: 2,
+    message_id: "line:3",
     needs_review: true,
   },
 ];

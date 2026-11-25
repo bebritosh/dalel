@@ -50,7 +50,7 @@ export interface ApiClient {
   getMissing(caseId: number, token: string): Promise<MissingItem[]>;
   getChecks(caseId: number, token: string): Promise<CheckResult[]>;
   createClaim(caseId: number, token: string): Promise<Claim>;
-  exportClaim(caseId: number, token: string, format: "docx"): Promise<Blob>;
+  exportClaim(caseId: number, token: string, format: "docx" | "pdf"): Promise<Blob>;
   markSent(caseId: number, token: string): Promise<MarkSent>;
   getReceiptLines(
     caseId: number,
