@@ -7,6 +7,7 @@ text is used. Legal references come only from rules/legal_refs.json as stubs.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -23,6 +24,18 @@ from app.services.extract.normalize import (
 
 _LEGAL_PATH = Path("rules/legal_refs.json")
 _REQUIRED = ("seller_name", "purchase_date", "total_amount")
+
+# Characters not allowed in XML 1.0. OCR can emit control characters (U+0000..
+# U+001F except tab/newline/CR); if they reach the DOCX, Word refuses to open it
+# ("content cannot be read"). Strip them once, before any substitution.
+_XML_INVALID = re.compile(
+    "[^\u0009\u000a\u000d -퟿-�\U00010000-\U0010ffff]"
+)
+
+
+def _xml_safe(value: str) -> str:
+    """Remove characters invalid in XML 1.0 (keeps tab/newline/CR)."""
+    return _XML_INVALID.sub("", value or "")
 
 
 class RequiredFieldsError(Exception):
@@ -88,13 +101,16 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
         if e.date:
             allowed_dates.add(e.date)
 
-    seller = confirmed["seller_name"].value
+    # Sanitize every user/OCR-derived string once, here, before it enters the
+    # claim text or the DOCX context. Numbers/dates are reformatted from
+    # normalized values and need no cleaning.
+    seller = _xml_safe(confirmed["seller_name"].value)
     purchase_date = normalize_date(confirmed["purchase_date"].value)
     amount = _fmt_amount(confirmed["total_amount"].value)
-    currency = confirmed["currency"].value if "currency" in confirmed else ""
+    currency = _xml_safe(confirmed["currency"].value) if "currency" in confirmed else ""
 
     items = [
-        confirmed[k].value
+        _xml_safe(confirmed[k].value)
         for k in sorted(confirmed)
         if k.startswith("item_") and not k.endswith("_price")
     ]

@@ -116,3 +116,73 @@ def test_export_pdf_converts_when_soffice_available(client):
     resp = client.get(f"/cases/{case_id}/export?format=pdf", headers=h)
     assert resp.status_code == 200
     assert resp.content[:5] == b"%PDF-"
+
+
+# --- DOCX validity: Word must be able to open it (valid XML, no control chars) ---
+
+import io
+import zipfile
+
+from docx import Document as _DocxOpen
+from lxml import etree
+
+_XML_PARTS = ("[Content_Types].xml", "word/document.xml", "_rels/.rels")
+_CONTROL = [chr(c) for c in range(0x20) if c not in (0x09, 0x0A, 0x0D)]
+
+
+def _confirmed_case_dirty_seller(client):
+    """A confirmed case whose seller fact carries OCR control characters."""
+    case_id, token = create_case(client)
+    h = {"X-Case-Token": token}
+    _upload(client, case_id, token, "receipt.png", "receipt", "image/png")
+    _upload(client, case_id, token, "chat.txt", "chat", "text/plain")
+    facts = {f["field"]: f for f in client.post(f"/cases/{case_id}/extract", headers=h).json()}
+    # Confirm seller with a control-char-polluted value (as dirty OCR would give).
+    _confirm(client, token, facts["seller_name"]["id"], value="ТОО \x07«Пример\x1f Электроникс» <&>")
+    for field in ("purchase_date", "total_amount"):
+        _confirm(client, token, facts[field]["id"])
+    client.post(f"/cases/{case_id}/claim", headers=h)
+    return case_id, token, h
+
+
+def test_docx_opens_with_control_chars_in_facts(client):
+    case_id, token, h = _confirmed_case_dirty_seller(client)
+    export = client.get(f"/cases/{case_id}/export?format=docx", headers=h)
+    assert export.status_code == 200, export.text
+    data = export.content
+
+    zf = zipfile.ZipFile(io.BytesIO(data))
+    names = zf.namelist()
+    for part in _XML_PARTS:
+        assert part in names, part
+    # Every XML part parses without error (what Word does on open).
+    for name in names:
+        if name.endswith(".xml") or name.endswith(".rels"):
+            etree.fromstring(zf.read(name))  # raises on malformed XML
+    doc_xml = zf.read("word/document.xml").decode("utf-8")
+    assert not any(c in doc_xml for c in _CONTROL)  # no invalid control chars
+    for marker in ("{{", "}}", "{%", "%}"):
+        assert marker not in doc_xml
+
+    # python-docx opens it and the sanitized seller is present.
+    doc = _DocxOpen(io.BytesIO(data))
+    text = "\n".join(p.text for p in doc.paragraphs)
+    assert "«Пример Электроникс»" in text  # control chars stripped, text intact
+
+
+def test_guard_still_422_on_substituted_amount_via_api(client, monkeypatch):
+    """The DOCX fix must not weaken the guard: a tampered amount -> 422."""
+    case_id, token, h = _confirmed_case(client)
+
+    # Force build_claim to emit an amount not backed by confirmed facts.
+    import app.services.export as exp
+    real_build = exp.build_claim
+
+    def tampered(session, case):
+        b = real_build(session, case)
+        b.context["amount"] = "999 999,00"
+        return b
+
+    monkeypatch.setattr(exp, "build_claim", tampered)
+    resp = client.get(f"/cases/{case_id}/export?format=docx", headers=h)
+    assert resp.status_code == 422
