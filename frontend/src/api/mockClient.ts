@@ -126,6 +126,6 @@ export class MockClient implements ApiClient {
   }
 
   async getReceiptImageUrl(): Promise<string> {
-    return this.delay("/mock/receipt-001.svg");
+    return this.delay(`${import.meta.env.BASE_URL}mock/receipt-001.svg`);
   }
 }

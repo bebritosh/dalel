@@ -13,3 +13,4 @@ frontend/dist/
 .impeccable/
 .DS_Store
 Thumbs.db
+frontend/dist-mock/

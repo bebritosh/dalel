@@ -28,7 +28,7 @@ http://localhost:5173
 ```
 Демо-файлы для перетаскивания: `eval\cases\demo-001\` (`receipt.png` → «Чек», `chat.txt` → «Переписка»).
 
-Режим без бэкенда (для жюри): в `frontend\` — `set VITE_API_MODE=mock && npm run dev`.
+Режим без бэкенда (для жюри): в `frontend\` — `npm run dev:mock` (статическая сборка: `npm run build:mock`, папка `dist-mock/`).
 
 ## Режимы извлечения и приватность
 `LLM_MODE=fixture|openai|live|rules|auto` (см. `.env.example`). `rules` — это **rule-based baseline** (регулярки), а не LLM. `auto`: известный sha256 чека → фикстуры (офлайн), неизвестный → живой Tesseract + OpenAI (если есть ключ) или rule-based baseline.
