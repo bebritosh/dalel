@@ -137,3 +137,10 @@
 | 25.11 | 4 | `SLIDES_UPDATE.md`, `PITCH.md`, `QA.md` с цифрами из прогона | — | Скриншоты не сделаны: нет Playwright Chromium; нужен источник цифры 9 064 |
 | 25.11 | 5 | mock-сборка `npm run build:mock` (`dist-mock/`, HashRouter), HANDOFF для Mac/Windows, `DEMO_RUNBOOK`, черновик письма организаторам (не отправлено), `DEMO_VIDEO`, `LAWYER_QUESTIONS` | mock-сборка проверена через статический сервер | `file://` и Windows не проверены |
 | 25.11 | 6 | README, PLAN, журнал | pytest 49 passed; frontend typecheck/lint/build зелёные | — |
+
+---
+
+## Журнал автономной работы (Шаги 1–12, 25.11)
+| Шаг | Что сделано | Тесты / eval | Проблемы / решения |
+| --- | --- | --- | --- |
+| 1 | Сверка PLAN.md с кодом, перезапись плана, замер базовой линии | pytest **50 passed** (журнал ошибочно писал 49); typecheck чисто; build ок (56 модулей, js 200.69 КБ) | Tesseract и LibreOffice на машине не установлены (нет в PATH и на диске). Поддержка `TESSERACT_CMD` уже есть в `config.py`/движке/eval — добавлять нечего. **eval не воспроизводится** (раннер требует Tesseract для OCR в любом режиме) → цифры openai оставлены «из журнала, не воспроизведено». Не стоп-условие: продолжаю. |
