@@ -68,6 +68,9 @@ export const ru: Record<string, string> = {
   "claim.backToFields": "Вернуться к полям",
   "claim.emptyNeedConfirm": "Сначала подтвердите обязательные поля на экране проверки.",
   "claim.title": "Претензия",
+  "claim.amountLabel": "Сумма требования",
+  "claim.sources": "Источники",
+  "claim.allConfirmed": "Все обязательные поля подтверждены",
 
   "delete.button": "Удалить дело",
   "delete.confirm": "Удалить дело и все загруженные файлы? Это нельзя отменить.",

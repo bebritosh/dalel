@@ -8,6 +8,7 @@ import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorBox } from "../components/ErrorBox";
 import { ClaimText, type ClaimToken } from "../components/ClaimText";
+import { ClaimSummary } from "../components/ClaimSummary";
 import { ReceiptViewer } from "../components/ReceiptViewer";
 import { DeleteCaseButton } from "../components/DeleteCaseButton";
 import { getToken } from "../util/session";
@@ -201,6 +202,8 @@ export function ClaimPage() {
     <AppShell>
       <h1 className="text-[28px] font-bold leading-9">{t("claim.title")}</h1>
       <div className="mt-4"><Timer deadline={deadline} /></div>
+
+      {!violations && claim && data && <ClaimSummary data={data} />}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[3fr_2fr]">
         {/* Left: claim text */}

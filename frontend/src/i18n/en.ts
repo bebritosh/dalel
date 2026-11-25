@@ -68,6 +68,9 @@ export const en: Record<string, string> = {
   "claim.backToFields": "Back to fields",
   "claim.emptyNeedConfirm": "First confirm the required fields on the review screen.",
   "claim.title": "Claim",
+  "claim.amountLabel": "Claim amount",
+  "claim.sources": "Sources",
+  "claim.allConfirmed": "All required fields confirmed",
 
   "delete.button": "Delete case",
   "delete.confirm": "Delete this case and all uploaded files? This cannot be undone.",
