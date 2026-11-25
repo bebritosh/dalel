@@ -183,7 +183,7 @@ export function UploadPage() {
                   <select
                     value={p.kind}
                     onChange={(e) => setKind(i, e.target.value as DocumentKind)}
-                    aria-label={`Тип файла ${p.file.name}`}
+                    aria-label={`${t("upload.kindLabel")} ${p.file.name}`}
                     className="rounded-md border border-border px-2 py-1 text-sm"
                   >
                     {KINDS.map((k) => (

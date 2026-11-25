@@ -15,6 +15,7 @@ export const ru: Record<string, string> = {
   "upload.subtitle": "Загрузите чек и переписку. Мы соберём поля и хронологию.",
   "upload.drop": "Перетащите файлы или нажмите, чтобы выбрать",
   "upload.accepted": "Принимаются jpeg, png, pdf, txt, json. До 15 МБ.",
+  "upload.kindLabel": "Тип файла",
   "upload.remove": "Удалить",
   "upload.analyze": "Разобрать",
   "upload.needReceipt": "Добавьте файл с типом «чек», чтобы продолжить",

@@ -15,6 +15,7 @@ export const en: Record<string, string> = {
   "upload.subtitle": "Upload the receipt and chat. We will extract fields and build a timeline.",
   "upload.drop": "Drag files here or click to choose",
   "upload.accepted": "Accepted: jpeg, png, pdf, txt, json. Up to 15 MB.",
+  "upload.kindLabel": "File type",
   "upload.remove": "Remove",
   "upload.analyze": "Analyze",
   "upload.needReceipt": "Add a file typed as “receipt” to continue",

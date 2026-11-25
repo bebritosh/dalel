@@ -11,6 +11,7 @@ from app.models import Case, CaseStatus, Document, DocumentKind, Fact, OcrLine
 from app.services.extract.base import LlmProvider
 from app.services.extract.fixture_provider import FixtureProvider
 from app.services.extract.grounding import is_grounded
+from app.services.extract.normalize import normalize_number
 from app.services.extract.live_provider import LiveProvider
 from app.services.extract.openai_provider import OpenAiProvider
 from app.services.extract.rules_provider import RuleBasedProvider
@@ -58,10 +59,14 @@ def _make_scalar_fact(
 ) -> Fact:
     grounded = is_grounded(field, extracted.value, extracted.line_ids, lines_by_id)
     confidence = extracted.confidence if grounded else min(extracted.confidence, 0.3)
+    value = extracted.value
+    if field == "total_amount" and value:
+        # Canonical numeric form regardless of how the provider formatted it.
+        value = normalize_number(value) or value
     return Fact(
         case_id=case_id,
         field=field,
-        value=extracted.value,
+        value=value,
         confidence=confidence,
         document_id=document_id,
         line_ids=list(extracted.line_ids),
@@ -107,7 +112,9 @@ def _facts_from_result(
                 Fact(
                     case_id=case_id,
                     field=f"item_{idx}_price",
-                    value=item.price,
+                    # Same canonical form as total_amount ("27990.00"); grounding
+                    # above already compares numbers, so this only fixes display.
+                    value=normalize_number(item.price) or item.price,
                     confidence=0.8 if price_grounded else 0.3,
                     document_id=document_id,
                     line_ids=list(item.line_ids),
