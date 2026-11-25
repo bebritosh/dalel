@@ -18,12 +18,17 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 15 * 1024 * 1024  # 15 MB
 
     # LLM extraction (phase 1).
-    llm_mode: str = "fixture"  # fixture | live
+    # fixture | live (Anthropic) | openai | rules (rule-based baseline) | auto
+    llm_mode: str = "fixture"
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-opus-4-8"
+    anthropic_model: str = "claude-sonnet-5-5"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-5.4-mini"
+    # Opt-in: save real LLM responses as eval/fixtures/{sha}.json (offline replay).
+    save_llm_fixtures: bool = False
 
     # OCR (phase 1).
-    ocr_engine: str = "fixture"  # fixture | tesseract
+    ocr_engine: str = "fixture"  # fixture | tesseract | auto (LLM_MODE=auto also forces auto OCR)
     ocr_langs: str = "rus+eng"
     tesseract_cmd: str = ""  # optional explicit path to tesseract.exe
 

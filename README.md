@@ -30,6 +30,11 @@ http://localhost:5173
 
 Режим без бэкенда (для жюри): в `frontend\` — `set VITE_API_MODE=mock && npm run dev`.
 
+## Режимы извлечения и приватность
+`LLM_MODE=fixture|openai|live|rules|auto` (см. `.env.example`). `rules` — это **rule-based baseline** (регулярки), а не LLM. `auto`: известный sha256 чека → фикстуры (офлайн), неизвестный → живой Tesseract + OpenAI (если есть ключ) или rule-based baseline.
+
+**Приватность:** в режимах `openai` и `live` текст OCR чека отправляется внешнему провайдеру (OpenAI / Anthropic). На демо и в eval используются только синтетические данные; реальные чеки в такие режимы подавать нельзя. Содержимое чека и тела запросов не логируются. Сохранение ответов модели в `eval/fixtures/{sha}.json` включается только явно (`SAVE_LLM_FIXTURES=1`).
+
 ## Документация
 - [docs/HANDOFF.md](docs/HANDOFF.md) — установка и запуск по шагам.
 - [docs/PLAN.md](docs/PLAN.md) — фазы, статус, открытые вопросы.

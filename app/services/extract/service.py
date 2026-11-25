@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from sqlmodel import Session, select
 
 from app.core.config import settings
@@ -10,15 +12,41 @@ from app.services.extract.base import LlmProvider
 from app.services.extract.fixture_provider import FixtureProvider
 from app.services.extract.grounding import is_grounded
 from app.services.extract.live_provider import LiveProvider
+from app.services.extract.openai_provider import OpenAiProvider
+from app.services.extract.rules_provider import RuleBasedProvider
 from app.services.extract.schema import ExtractedField, ExtractionResult
 from app.services.ocr import run_ocr
+from app.services.ocr.factory import has_layout_fixture
 
 
-def get_provider() -> LlmProvider:
-    """Return the configured extraction provider (fixture by default)."""
-    if settings.llm_mode == "live":
+def get_provider(sha256: str | None = None) -> LlmProvider:
+    """Return the extraction provider for the configured LLM_MODE.
+
+    auto: a sha256 with BOTH a layout fixture and an extraction fixture runs
+    fully offline from fixtures; any other sha256 uses the OpenAI provider when
+    a key is set, else the rule-based baseline (paired with live OCR).
+    """
+    mode = settings.llm_mode
+    if mode == "auto":
+        fixture = FixtureProvider()
+        if sha256 and fixture.has_fixture(sha256) and has_layout_fixture(sha256):
+            return fixture
+        return OpenAiProvider() if settings.openai_api_key else RuleBasedProvider()
+    if mode == "openai":
+        return OpenAiProvider()
+    if mode == "live":
         return LiveProvider()
+    if mode == "rules":
+        return RuleBasedProvider()
     return FixtureProvider()
+
+
+def _save_fixture(sha256: str, result: ExtractionResult, source: str) -> None:
+    """Opt-in (SAVE_LLM_FIXTURES): store a real model response for offline replay."""
+    path = FixtureProvider().fixtures_dir / f"{sha256}.json"
+    data = {"_source": f"live_{source}", **result.model_dump()}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _make_scalar_fact(
@@ -111,7 +139,6 @@ def run_extraction(session: Session, case: Case) -> list[Fact]:
     if existing:
         return list(existing)
 
-    provider = get_provider()
     receipts = session.exec(
         select(Document).where(
             Document.case_id == case.id, Document.kind == DocumentKind.receipt
@@ -122,7 +149,12 @@ def run_extraction(session: Session, case: Case) -> list[Fact]:
     for doc in receipts:
         lines = run_ocr(session, doc)
         lines_by_id = {line.line_no: line for line in lines}
+        provider = get_provider(doc.sha256)
         result = provider.extract(doc.sha256, lines)
+        doc.extract_source = provider.source
+        session.add(doc)
+        if settings.save_llm_fixtures and provider.source in ("openai", "anthropic"):
+            _save_fixture(doc.sha256, result, provider.source)
         for fact in _facts_from_result(case.id, doc.id, result, lines_by_id):
             session.add(fact)
             created.append(fact)

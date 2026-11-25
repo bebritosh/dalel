@@ -39,6 +39,10 @@ class Document(SQLModel, table=True):
     sha256: str = Field(index=True)
     mime_type: str
     created_at: datetime = Field(default_factory=_utcnow)
+    # Provenance: "fixture" | "tesseract" ; "fixture" | "openai" | "anthropic" | "rules".
+    # Empty until OCR / extraction has run. Fresh DB needed when upgrading.
+    ocr_source: str = ""
+    extract_source: str = ""
 
 
 class OcrLine(SQLModel, table=True):

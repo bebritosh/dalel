@@ -33,3 +33,11 @@
 - **`eval/fixtures/handmade_{sha}.json`** — **рукописный** ответ извлечения (на демо нет ключа LLM). Помечен префиксом `handmade_` и полем `_source: "handmade_no_live_llm"`. Нельзя выдавать за реальный ответ модели.
 - Реальные ответы живого режима сохранялись бы как `{sha}.json` (без префикса). Провайдер фикстур сначала ищет `{sha}.json`, затем `handmade_{sha}.json`.
 - Все демо-данные (названия магазина, суммы, даты, имена в переписке) **полностью вымышлены**.
+
+
+## Блок 2: живое извлечение и режим `auto`
+- **Провайдеры** за одним интерфейсом `LlmProvider`: `OpenAiProvider` (httpx, Chat Completions, `response_format=json_schema`, `strict: true`, `max_completion_tokens`; `max_tokens` устарел), `LiveProvider` (Anthropic, по умолчанию `claude-sonnet-5-5`; прежний ID `claude-opus-4-8` был неверным), `RuleBasedProvider` (**rule-based baseline**, не LLM), `FixtureProvider`. Строгая схема OpenAI: все поля `required`, `additionalProperties: false`, необязательные значения как `type: [..., "null"]`.
+- **Ошибки:** невалидный JSON/схема → один повтор, затем `OpenAiError` без содержимого чека; HTTP-ошибки сообщают только код. Тело запроса, текст OCR и ключ не логируются.
+- **`LLM_MODE=auto` управляет и OCR, и извлечением** (одна ручка вместо двух): sha256 файла с `*.layout.json` → фикстурный OCR; иначе Tesseract. Извлечение: фикстура только если есть и layout-, и extraction-фикстура (иначе номера строк не совпали бы с живым OCR); иначе OpenAI при наличии ключа, иначе rule-based baseline. `OCR_ENGINE=auto` тоже допустим.
+- **Происхождение данных:** у `Document` два поля `ocr_source` (`fixture|tesseract`) и `extract_source` (`fixture|openai|anthropic|rules`), отдаются в `DocumentRead`; UI показывает плашку источника. Старую БД `data/dalel.db` нужно удалить (миграций нет).
+- **`SAVE_LLM_FIXTURES=1`** (по умолчанию выкл.) сохраняет ответ openai/anthropic как `eval/fixtures/{sha}.json` для офлайн-повтора; только для синтетических чеков.
