@@ -12,7 +12,7 @@ from app.schemas.claim import ClaimRead, GuardErrorBody, GuardViolationOut, Mark
 from app.services import cases as cases_service
 from app.services.claim import RequiredFieldsError, create_claim
 from app.services.claim_guard import GuardError
-from app.services.export import export_docx
+from app.services.export import ExportError, export_docx
 
 router = APIRouter(prefix="/cases", tags=["claim"])
 
@@ -78,6 +78,11 @@ def export(
     except GuardError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=_guard_body(e)
+        )
+    except ExportError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ошибка формирования DOCX: {e}",
         )
     return Response(
         content=data,
