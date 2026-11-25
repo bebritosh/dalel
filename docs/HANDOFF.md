@@ -50,6 +50,11 @@ cp .env.example .env        # macOS;  Windows: copy .env.example .env
 ```
 и заполнить нужное. `.env` не коммитить, ключи не печатать. Режимы `LLM_MODE` (`fixture`, `rules`, `openai`, `live`, `auto`) и `OCR_ENGINE` (`fixture`, `tesseract`, `auto`) добавляются в день 25.11: актуальный список и описание смотри в `.env.example`.
 
+Переменные путей к внешним инструментам (нужны только для живых режимов; на демо не требуются):
+- `TESSERACT_CMD` — путь к `tesseract.exe`, если он не в `PATH` (для `OCR_ENGINE=tesseract`/`auto` и для `eval/run_eval.py`). Без Tesseract eval не запускается — это ожидаемо.
+- `SOFFICE_PATH` — путь к `soffice` LibreOffice для PDF-экспорта. Не задан или LibreOffice не установлен → эндпоинт `?format=pdf` отдаёт **503** с понятным текстом, приложение не падает; DOCX работает всегда.
+- База не требует ручного удаления: при обновлении схемы недостающие колонки добавляются авто-миграцией на старте. Полный сброс — `python scripts/reset_db.py` (с подтверждением).
+
 ### Шаблон и фикстуры
 Шаблон претензии (`templates/claim.docx`) и демо-фикстуры (`eval/fixtures/`, `eval/cases/demo-001/`) уже в репозитории.
 **Не пересоздавать их на демо-машине.** Фикстуры привязаны к sha256 файла `eval/cases/demo-001/receipt.png`; перегенерация (`scripts/make_demo.py`) даёт другой PNG (шрифты зависят от ОС), хэш меняется и фикстуры перестают находиться. Запускать генератор только осознанно, если менялся сам генератор, и потом перепроверять сценарий:
@@ -139,6 +144,8 @@ python3 -m http.server 8080          # Windows: python -m http.server 8080
 - Живой OCR (Tesseract, `OCR_ENGINE=tesseract`) и живой LLM (`LLM_MODE=openai` / `live` / `auto`)
   подключаются переменными в `.env`, когда установлен Tesseract (macOS: `brew install tesseract tesseract-lang`, нужен язык `rus`: `tesseract --list-langs`) и есть ключ. В живых режимах текст чека уходит внешнему провайдеру: только синтетика.
 
-## Почему нет PDF
-Экспорт PDF требует LibreOffice headless. В этой версии отдаётся только DOCX; кнопки PDF
-нет осознанно. DOCX открывается в Word/LibreOffice и готов к печати.
+## PDF-экспорт
+Есть кнопка «Скачать PDF». PDF собирается конвертацией того же guard’ованного DOCX через
+LibreOffice headless (`soffice`). Путь — в `SOFFICE_PATH`; если LibreOffice не установлен,
+эндпоинт отдаёт **503** и UI показывает понятный текст — DOCX при этом работает всегда и
+готов к печати. На демо без LibreOffice используйте DOCX.
