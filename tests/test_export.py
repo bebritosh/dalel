@@ -10,7 +10,14 @@ from app.models import Case
 from app.services import export as export_mod
 from app.services.claim import ClaimBuild
 from app.services.claim_guard import GuardError
-from app.services.export import ExportError, _docx_text, export_docx
+from app.services.export import (
+    ExportError,
+    SofficeUnavailableError,
+    _docx_text,
+    export_docx,
+    export_pdf,
+    find_soffice,
+)
 from tests.test_pipeline import _confirm, _upload
 from tests.conftest import create_case
 
@@ -63,11 +70,7 @@ def test_leftover_marker_in_data_raises_export_error(monkeypatch):
         export_docx(None, Case(id=1, access_token="x"))
 
 
-def test_real_pipeline_docx_has_values_and_no_markers(client):
-    """Full path: the exported DOCX carries real values and no raw placeholders."""
-    from pathlib import Path
-
-    demo = Path("eval/cases/demo-001")
+def _confirmed_case(client):
     case_id, token = create_case(client)
     h = {"X-Case-Token": token}
     _upload(client, case_id, token, "receipt.png", "receipt", "image/png")
@@ -76,7 +79,12 @@ def test_real_pipeline_docx_has_values_and_no_markers(client):
     for field in ("seller_name", "purchase_date", "total_amount"):
         _confirm(client, token, facts[field]["id"])
     client.post(f"/cases/{case_id}/claim", headers=h)
+    return case_id, token, h
 
+
+def test_real_pipeline_docx_has_values_and_no_markers(client):
+    """Full path: the exported DOCX carries real values and no raw placeholders."""
+    case_id, token, h = _confirmed_case(client)
     export = client.get(f"/cases/{case_id}/export?format=docx", headers=h)
     assert export.status_code == 200
     text = _docx_text(export.content)
@@ -84,4 +92,27 @@ def test_real_pipeline_docx_has_values_and_no_markers(client):
         assert marker not in text
     assert "ПРЕТЕНЗИЯ" in text
     assert "249 990,00" in text
-    _ = demo  # path kept for clarity
+
+
+def test_export_pdf_raises_without_soffice(monkeypatch):
+    monkeypatch.setattr(export_mod, "build_claim", lambda s, c: _legit_build())
+    monkeypatch.setattr(export_mod, "find_soffice", lambda: None)
+    with pytest.raises(SofficeUnavailableError):
+        export_pdf(None, Case(id=1, access_token="x"))
+
+
+def test_export_pdf_api_returns_503_without_soffice(client, monkeypatch):
+    monkeypatch.setattr(export_mod, "find_soffice", lambda: None)
+    case_id, token, h = _confirmed_case(client)
+    resp = client.get(f"/cases/{case_id}/export?format=pdf", headers=h)
+    assert resp.status_code == 503
+    assert "soffice" in resp.json()["detail"].lower() or "libreoffice" in resp.json()["detail"].lower()
+
+
+def test_export_pdf_converts_when_soffice_available(client):
+    if find_soffice() is None:
+        pytest.skip("LibreOffice (soffice) not installed on this machine")
+    case_id, token, h = _confirmed_case(client)
+    resp = client.get(f"/cases/{case_id}/export?format=pdf", headers=h)
+    assert resp.status_code == 200
+    assert resp.content[:5] == b"%PDF-"

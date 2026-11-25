@@ -32,5 +32,9 @@ class Settings(BaseSettings):
     ocr_langs: str = "rus+eng"
     tesseract_cmd: str = ""  # optional explicit path to tesseract.exe
 
+    # PDF export (phase 7): path to LibreOffice's soffice binary. Empty => auto
+    # detect (PATH + standard install locations); if still missing, PDF -> 503.
+    soffice_path: str = ""
+
 
 settings = Settings()

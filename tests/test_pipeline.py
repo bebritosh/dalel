@@ -78,9 +78,9 @@ def test_full_pipeline(client):
     assert sent["response_deadline"] is not None
 
 
-def test_pdf_export_not_supported(client):
+def test_unknown_export_format_is_400(client):
     case_id, token = create_case(client)
     resp = client.get(
-        f"/cases/{case_id}/export?format=pdf", headers={"X-Case-Token": token}
+        f"/cases/{case_id}/export?format=rtf", headers={"X-Case-Token": token}
     )
     assert resp.status_code == 400

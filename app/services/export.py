@@ -10,6 +10,9 @@ dependency). See HANDOFF.md for the rationale.
 
 from __future__ import annotations
 
+import shutil
+import subprocess
+import tempfile
 from io import BytesIO
 from pathlib import Path
 
@@ -17,6 +20,7 @@ from docx import Document as DocxDocument
 from docxtpl import DocxTemplate
 from sqlmodel import Session
 
+from app.core.config import settings
 from app.models import Case
 from app.services.claim import build_claim
 from app.services.claim_guard import GuardError, check_text
@@ -26,9 +30,22 @@ _TEMPLATE = Path("templates/claim.docx")
 # Unrendered template tokens that must never survive into the final DOCX.
 _PLACEHOLDER_MARKERS = ("{{", "}}", "{%", "%}")
 
+# Standard LibreOffice install locations to probe when SOFFICE_PATH is unset.
+_SOFFICE_CANDIDATES = (
+    r"C:\Program Files\LibreOffice\program\soffice.exe",
+    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+    "/usr/bin/soffice",
+    "/opt/libreoffice/program/soffice",
+    "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+)
+
 
 class ExportError(Exception):
     """The rendered DOCX is malformed (e.g. an unfilled template placeholder)."""
+
+
+class SofficeUnavailableError(Exception):
+    """LibreOffice (soffice) is not installed or the conversion failed."""
 
 
 def _docx_text(data: bytes) -> str:
@@ -75,3 +92,52 @@ def export_docx(session: Session, case: Case) -> tuple[str, bytes]:
 
     filename = f"pretenziya_case_{case.id}.docx"
     return filename, data
+
+
+def find_soffice() -> str | None:
+    """Locate the LibreOffice binary: SOFFICE_PATH, then PATH, then standards."""
+    if settings.soffice_path and Path(settings.soffice_path).exists():
+        return settings.soffice_path
+    on_path = shutil.which("soffice") or shutil.which("soffice.exe")
+    if on_path:
+        return on_path
+    for candidate in _SOFFICE_CANDIDATES:
+        if Path(candidate).exists():
+            return candidate
+    return None
+
+
+def export_pdf(session: Session, case: Case) -> tuple[str, bytes]:
+    """Return (filename, pdf_bytes) by rendering the guarded DOCX via LibreOffice.
+
+    Raises SofficeUnavailableError if LibreOffice is absent or conversion fails.
+    """
+    _, docx_bytes = export_docx(session, case)  # reuse guard + placeholder checks
+
+    soffice = find_soffice()
+    if not soffice:
+        raise SofficeUnavailableError(
+            "LibreOffice (soffice) не найден. Установите LibreOffice и задайте "
+            "SOFFICE_PATH в .env, либо экспортируйте DOCX."
+        )
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        docx_path = tmp_dir / f"claim_{case.id}.docx"
+        docx_path.write_bytes(docx_bytes)
+        try:
+            subprocess.run(
+                [soffice, "--headless", "--convert-to", "pdf", "--outdir",
+                 str(tmp_dir), str(docx_path)],
+                check=True, capture_output=True, timeout=120,
+            )
+        except (subprocess.SubprocessError, OSError) as exc:
+            raise SofficeUnavailableError(
+                f"Конвертация в PDF не удалась: {type(exc).__name__}."
+            ) from exc
+        pdf_path = docx_path.with_suffix(".pdf")
+        if not pdf_path.exists():
+            raise SofficeUnavailableError("LibreOffice не создал PDF-файл.")
+        pdf_bytes = pdf_path.read_bytes()
+
+    return f"pretenziya_case_{case.id}.pdf", pdf_bytes

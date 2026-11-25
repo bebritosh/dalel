@@ -12,7 +12,12 @@ from app.schemas.claim import ClaimRead, GuardErrorBody, GuardViolationOut, Mark
 from app.services import cases as cases_service
 from app.services.claim import RequiredFieldsError, create_claim
 from app.services.claim_guard import GuardError
-from app.services.export import ExportError, export_docx
+from app.services.export import (
+    ExportError,
+    SofficeUnavailableError,
+    export_docx,
+    export_pdf,
+)
 
 router = APIRouter(prefix="/cases", tags=["claim"])
 
@@ -59,14 +64,19 @@ def export(
     case: Case = Depends(get_authorized_case),
     session: Session = Depends(get_session),
 ) -> Response:
-    """Export the claim. Only DOCX is supported in this version."""
-    if format != "docx":
+    """Export the claim as DOCX, or PDF when LibreOffice is available."""
+    if format not in ("docx", "pdf"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Поддерживается только формат docx в этой версии.",
+            detail="Поддерживаются форматы docx и pdf.",
         )
     try:
-        filename, data = export_docx(session, case)
+        if format == "pdf":
+            filename, data = export_pdf(session, case)
+            media_type = "application/pdf"
+        else:
+            filename, data = export_docx(session, case)
+            media_type = _DOCX_MIME
     except RequiredFieldsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -79,6 +89,10 @@ def export(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=_guard_body(e)
         )
+    except SofficeUnavailableError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+        )
     except ExportError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -86,7 +100,7 @@ def export(
         )
     return Response(
         content=data,
-        media_type=_DOCX_MIME,
+        media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
