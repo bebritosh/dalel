@@ -11,6 +11,7 @@ from sqlmodel import Session, select
 from app.models import Event, EventKind, Fact
 from app.schemas.checks import CheckResult
 from app.services.extract.normalize import normalize_date, normalize_number
+from app.services.photo_checks import check_photos
 
 _RULES_PATH = Path("rules/validation.yaml")
 
@@ -84,5 +85,8 @@ def run_checks(session: Session, case_id: int) -> list[CheckResult]:
         results.append(mk("V4", event_ids=[i for i in (pur_id, con_id) if i]))
     if con_d and ref_d and con_d > ref_d:
         results.append(mk("V4", event_ids=[i for i in (con_id, ref_id) if i]))
+
+    # Photo-quality checks (P1-P4) over defect photos (warnings, never block).
+    results.extend(check_photos(session, case_id))
 
     return results

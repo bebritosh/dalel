@@ -13,3 +13,20 @@ rules:
   - id: V4
     severity: error
     message: "Нарушен порядок дат: покупка должна быть раньше обращения, обращение — раньше отказа."
+  # Photo-quality checks (P1-P4). All warnings: informational, never block export.
+  - id: P1
+    severity: warning
+    message: "Фото дефекта низкого разрешения — мелкие детали могут быть не видны."
+    min_side: 600
+  - id: P2
+    severity: warning
+    message: "Фото дефекта выглядит размытым — возможно, стоит переснять резче."
+    blur_var_min: 60.0
+  - id: P3
+    severity: warning
+    message: "Фото дефекта слишком тёмное или засвеченное."
+    brightness_min: 40.0
+    brightness_max: 220.0
+  - id: P4
+    severity: warning
+    message: "Дата съёмки фото (EXIF) раньше даты покупки — проверьте вручную."

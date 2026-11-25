@@ -75,6 +75,7 @@ export interface CheckResult {
   message: string;
   fact_ids: number[];
   event_ids: number[];
+  document_ids?: number[];
 }
 
 export interface Claim {
