@@ -12,7 +12,7 @@
 
 ## Где мы сейчас
 Работает и проверено на этой машине:
-- Бэкенд `pytest -q` → **85 passed, 1 skipped** (skip — PDF без LibreOffice). Фронтенд typecheck/lint/build/build:mock — зелёные.
+- Бэкенд `pytest -q` → **92 passed** (на машине с LibreOffice; без него 1 skip — PDF). Фронтенд typecheck/lint/build/build:mock — зелёные.
 - Полный путь: загрузка (jpg/png/pdf/txt/json/mp4) → OCR → извлечение с grounding → подтверждение полей → проверки (V1–V4 + фото P1–P4) → хронология → претензия с guard → экспорт DOCX. PDF — через LibreOffice (если установлен).
 - Переписка: WhatsApp (Android+iOS) и Telegram (`result.json`); события через `rules/chat_events.yaml` (contact/reply/refusal) со ссылкой на сообщение.
 - БД сама мигрирует на старте (не нужно удалять `data/dalel.db`).
@@ -20,6 +20,12 @@
 - Код — на ветке `handoff/2026-11-25-open-issues` (и `opus/2026-11-25`), запушен на GitHub.
 
 Детальный статус шагов 1–12 — в [PLAN_TODAY.md](PLAN_TODAY.md). Всё сделано; осталось то, что ниже.
+
+## Сделано 26.11 (ветка `opus/2026-11-26`, подробно — PLAN_TODAY.md)
+- Живой LLM проверен: eval `openai` на 15 делах — продавец/дата/сумма 100%, привязано 97%, guard 15/15.
+- DOCX: найдены и исправлены причины ошибки Word (mock отдавал текст под видом .docx; ранний revokeObjectURL). Шаблон A4, Times 14.
+- Правовые нормы: 6 норм из Закона РК «О защите прав потребителей», сверены с adilet.zan.kz; **ждут юриста** (LAWYER_QUESTIONS.md, вверху).
+- Реалистичные данные: case-010..015 (фото фискальных чеков РК); OCR psm 6.
 
 ## Что делать тебе (по приоритету)
 
@@ -62,7 +68,7 @@
 
 ## Как запустить и проверить
 - Запуск, установка, демо-сценарий: [HANDOFF.md](HANDOFF.md).
-- Тесты: `.venv\Scripts\python -m pytest -q` (ждём 85 passed, 1 skipped). Фронт: `cd frontend && npm run typecheck && npm run lint && npm run build`.
+- Тесты: `.venv\Scripts\python -m pytest -q` (ждём 92 passed; без LibreOffice — 91 passed, 1 skipped). Фронт: `cd frontend && npm run typecheck && npm run lint && npm run build`.
 - eval: `.venv\Scripts\python eval\run_eval.py --mode rules` (нужен Tesseract).
 - После правок извлечения/проверок — прогоняй eval и показывай цифры до/после. Маленькие коммиты, сообщения на русском.
 

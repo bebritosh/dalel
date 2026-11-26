@@ -60,6 +60,7 @@ cp .env.example .env        # macOS;  Windows: copy .env.example .env
 **Не пересоздавать их на демо-машине.** Фикстуры привязаны к sha256 файла `eval/cases/demo-001/receipt.png`; перегенерация (`scripts/make_demo.py`) даёт другой PNG (шрифты зависят от ОС), хэш меняется и фикстуры перестают находиться. Запускать генератор только осознанно, если менялся сам генератор, и потом перепроверять сценарий:
 ```
 .venv/bin/python scripts/make_claim_template.py      # Windows: .venv\Scripts\python scripts\make_claim_template.py
+.venv/bin/python scripts/make_mock_exports.py        # после правок претензии/шаблона/legal_refs: DOCX/PDF/текст для mock-сборки
 .venv/bin/python scripts/make_demo.py                # Windows: .venv\Scripts\python scripts\make_demo.py
 ```
 Проверка, что демо-чек тот же: `shasum -a 256 eval/cases/demo-001/receipt.png` (macOS) должен начинаться с `eeef4d42540c...`; Windows: `certutil -hashfile eval\cases\demo-001\receipt.png SHA256` (не проверено на Windows).
