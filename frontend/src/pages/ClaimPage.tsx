@@ -45,6 +45,7 @@ function Timer({ deadline }: { deadline: string | null }) {
   if (!deadline) {
     return (
       <div className="rounded-card border border-border bg-surface px-4 py-3 text-sm">
+        <span className="font-medium text-muted">{t("claim.notSent")}.</span>{" "}
         {note}
         <span className="ml-2 text-muted">{t("claim.timerIdle")}</span>
       </div>
