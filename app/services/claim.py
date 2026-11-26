@@ -1,7 +1,8 @@
 """Claim assembly from confirmed facts and events only.
 
 The text is built strictly from confirmed facts (and event dates). No free LLM
-text is used. Legal references come only from rules/legal_refs.json as stubs.
+text is used. Legal references come only from rules/legal_refs.json (checked against
+adilet.zan.kz, pending lawyer review) and are copied verbatim.
 """
 
 from __future__ import annotations
@@ -126,6 +127,7 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
     refusal_d = event_date(EventKind.refusal)
 
     legal = _load_legal()
+    refs_by_id = {r["id"]: r for r in legal}
 
     context = {
         "seller": seller,
@@ -136,6 +138,8 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
         "contact_date": _fmt_date(contact_d),
         "refusal_date": _fmt_date(refusal_d),
         "legal": legal,
+        "remedy_citation": refs_by_id.get("remedies_for_defect", {}).get("citation", ""),
+        "term_citation": refs_by_id.get("seller_response_term", {}).get("citation", ""),
     }
 
     # Build the authoritative plain text (guard runs on this; DOCX mirrors it).
@@ -165,10 +169,19 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
             f"— {context['refusal_date']}: продавец отказал в удовлетворении требования."
         )
     lines.append("")
+    remedy = refs_by_id.get("remedies_for_defect")
+    term = refs_by_id.get("seller_response_term")
     lines.append("Требование:")
+    basis = f"На основании {remedy['citation']} прошу" if remedy else "Прошу"
     lines.append(
-        f"Прошу вернуть уплаченную за товар денежную сумму {amount_str}."
+        f"{basis} расторгнуть договор купли-продажи и вернуть уплаченную "
+        f"за товар денежную сумму {amount_str}."
     )
+    if term:
+        lines.append(
+            "Ответ на претензию прошу дать в письменной форме в течение десяти "
+            f"календарных дней со дня её получения ({term['citation']})."
+        )
     lines.append("")
     lines.append("Приложения:")
     lines.append("— копия чека;")
@@ -176,7 +189,7 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
     lines.append("")
     lines.append("Правовое обоснование:")
     for ref in legal:
-        lines.append(f"— {ref['title']}: [норма уточняется юристом].")
+        lines.append(f"— {ref['citation']}: {ref['text']}.")
     lines.append("")
     lines.append("[ФИО заявителя], подпись, дата.")
 
