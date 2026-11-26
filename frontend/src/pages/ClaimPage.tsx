@@ -195,9 +195,10 @@ export function ClaimPage() {
 
       {!violations && claim && data && <ClaimSummary data={data} />}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[3fr_2fr]">
-        {/* Left: claim text */}
-        <section className="rounded-card border border-border bg-surface p-5">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
+        {/* Left: claim text — bounded with its own scroll on desktop so the
+            long legal section doesn't stretch the whole page. */}
+        <section className="rounded-card border border-border bg-surface p-5 lg:max-h-[75vh] lg:overflow-y-auto">
           {violations ? (
             <div>
               <h2 className="text-lg font-semibold text-danger">{t("claim.blocked")}</h2>
