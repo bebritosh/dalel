@@ -13,6 +13,7 @@ import { ReceiptViewer } from "../components/ReceiptViewer";
 import { DeleteCaseButton } from "../components/DeleteCaseButton";
 import { getToken } from "../util/session";
 import { fmtAmount, fmtDate } from "../util/format";
+import { saveBlob } from "../util/download";
 
 function buildTokens(data: CaseDetail): ClaimToken[] {
   const tokens: ClaimToken[] = [];
@@ -36,7 +37,8 @@ function buildTokens(data: CaseDetail): ClaimToken[] {
 
 function Timer({ deadline }: { deadline: string | null }) {
   const { t } = useI18n();
-  // The 10-day period is a default, not an asserted legal rule (to be confirmed).
+  // 10 calendar days: para. 2 of art. 42-4 of the consumer protection law
+  // (rules/legal_refs.json, seller_response_term).
   const note = (
     <span className="font-medium">{t("claim.timerBefore")}</span>
   );
@@ -77,7 +79,7 @@ export function ClaimPage() {
   const [needConfirm, setNeedConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pdfNote, setPdfNote] = useState<string | null>(null);
+  const [exportNote, setExportNote] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -115,31 +117,15 @@ export function ClaimPage() {
     load();
   }, [load]);
 
-  async function download() {
+  async function download(format: "docx" | "pdf") {
     if (!token) return;
-    const blob = await api.exportClaim(caseId, token, "docx");
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `pretenziya_case_${caseId}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function downloadPdf() {
-    if (!token) return;
-    setPdfNote(null);
+    setExportNote(null);
     try {
-      const blob = await api.exportClaim(caseId, token, "pdf");
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `pretenziya_case_${caseId}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const blob = await api.exportClaim(caseId, token, format);
+      saveBlob(blob, `pretenziya_case_${caseId}.${format}`);
     } catch (e) {
-      // LibreOffice may be absent (503): show the server's message, do not crash.
-      setPdfNote(e instanceof ApiError ? e.message : t("common.error"));
+      // 422 (guard), 503 (no LibreOffice) etc.: show the server's message.
+      setExportNote(e instanceof ApiError ? e.message : t("common.error"));
     }
   }
 
@@ -251,19 +237,21 @@ export function ClaimPage() {
       {!violations && claim && (
         <div className="mt-6">
           <div className="flex flex-wrap gap-3">
-            <Button onClick={download}>{t("claim.download")}</Button>
-            <Button variant="secondary" onClick={downloadPdf}>
+            <Button onClick={() => download("docx")}>{t("claim.download")}</Button>
+            <Button variant="secondary" onClick={() => download("pdf")}>
               {t("claim.downloadPdf")}
             </Button>
             <Button variant="secondary" onClick={markSent}>
               {t("claim.markSent")}
             </Button>
           </div>
-          {pdfNote && (
+          {exportNote && (
             <p className="mt-3 text-sm text-muted" role="status">
-              {pdfNote}
+              {exportNote}
             </p>
           )}
+          <p className="mt-4 text-sm text-muted">{t("claim.deliveryHint")}</p>
+          <p className="mt-1 text-xs text-muted">{t("claim.legalNote")}</p>
         </div>
       )}
       <div className="mt-6">

@@ -55,8 +55,10 @@ export const en: Record<string, string> = {
   "missing.fix": "How to fix",
 
   "claim.timerIdle": "The timer starts after sending",
-  "claim.timerBefore": "Response deadline: default 10 days (to be confirmed)",
+  "claim.timerBefore": "Seller response deadline: 10 calendar days from receipt (art. 42-4(2), Consumer Protection Law of Kazakhstan)",
   "claim.deadlineDate": "Due by {date} ({n} days left)",
+  "claim.deliveryHint": "How to deliver: in person against a signature on your copy, by registered mail with delivery notice, or to the seller's e-mail if they published one (art. 42-4(1)).",
+  "claim.legalNote": "Legal references checked against the official text on adilet.zan.kz on 26.11.2026. Not yet reviewed by a lawyer. This is not legal advice.",
   "claim.download": "Download DOCX",
   "claim.downloadPdf": "Download PDF",
   "source.whatsapp": "WhatsApp",

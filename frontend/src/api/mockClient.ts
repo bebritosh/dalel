@@ -112,19 +112,20 @@ export class MockClient implements ApiClient {
     _token: string,
     format: "docx" | "pdf" = "docx",
   ): Promise<Blob> {
-    // Mock has no LibreOffice, so PDF mirrors the real 503 the backend returns.
-    if (format === "pdf") {
-      await this.delay(null);
+    // Real files exported by the backend for the synthetic demo case
+    // (scripts/make_mock_exports.py), so Word/PDF viewers open them as-is.
+    const resp = await fetch(
+      `${import.meta.env.BASE_URL}mock/pretenziya_demo.${format}`,
+    ).catch(() => null);
+    if (!resp || !resp.ok) {
       throw new ApiError(
         503,
-        "LibreOffice (soffice) не найден. Установите LibreOffice и задайте " +
-          "SOFFICE_PATH в .env, либо экспортируйте DOCX.",
+        format === "pdf"
+          ? "PDF недоступен в демо без бэкенда. Скачайте DOCX."
+          : "Файл демо-претензии не найден в сборке.",
       );
     }
-    // Mock export: a plain-text stand-in (not a real .docx).
-    return this.delay(
-      new Blob([mockClaimText], { type: "text/plain;charset=utf-8" }),
-    );
+    return this.delay(await resp.blob());
   }
 
   async markSent(): Promise<MarkSent> {
