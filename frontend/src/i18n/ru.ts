@@ -64,7 +64,7 @@ export const ru: Record<string, string> = {
   "source.whatsapp": "WhatsApp",
   "source.telegram": "Telegram",
   "claim.markSent": "Я отправил(а) продавцу",
-  "claim.sent": "Вы отметили: отправлено",
+  "claim.sent": "Отсчёт срока ответа запущен",
   "claim.blocked": "Экспорт заблокирован",
   "claim.blockedHint": "В тексте есть значения без подтверждённого факта:",
   "claim.backToFields": "Вернуться к полям",

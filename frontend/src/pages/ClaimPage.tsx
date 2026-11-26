@@ -50,8 +50,12 @@ function Timer({ deadline }: { deadline: string | null }) {
       </div>
     );
   }
-  const end = new Date(`${deadline}T23:59:59`).getTime();
-  const days = Math.max(0, Math.ceil((end - Date.now()) / 86400000));
+  // Whole calendar days from today to the deadline date, so the count matches
+  // the stated 10-day period (date-only diff, no partial-day rounding up).
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(`${deadline}T00:00:00`).getTime();
+  const days = Math.max(0, Math.round((end - today.getTime()) / 86400000));
   return (
     <div className="rounded-card border border-accent/30 bg-accent/5 px-4 py-3 text-sm">
       <span className="font-medium text-accent">{t("claim.sent")}.</span> {note}

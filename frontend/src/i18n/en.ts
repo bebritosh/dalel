@@ -64,7 +64,7 @@ export const en: Record<string, string> = {
   "source.whatsapp": "WhatsApp",
   "source.telegram": "Telegram",
   "claim.markSent": "I've sent it to the seller",
-  "claim.sent": "You marked it as sent",
+  "claim.sent": "Response countdown started",
   "claim.blocked": "Export blocked",
   "claim.blockedHint": "The text contains values without a confirmed fact:",
   "claim.backToFields": "Back to fields",
