@@ -20,6 +20,7 @@ function LangSwitch() {
     <div className="flex items-center gap-1" role="group" aria-label="Language">
       {opt("ru", t("langRu"))}
       {opt("en", t("langEn"))}
+      {opt("kk", t("langKk"))}
     </div>
   );
 }

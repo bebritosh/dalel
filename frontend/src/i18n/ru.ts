@@ -3,6 +3,7 @@ export const ru: Record<string, string> = {
   disclaimer: "Это не юридическая консультация",
   langRu: "RU",
   langEn: "EN",
+  langKk: "KK",
 
   "common.loading": "Загрузка…",
   "common.error": "Что-то пошло не так",
