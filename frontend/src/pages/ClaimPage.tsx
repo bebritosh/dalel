@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, GuardError } from "../api";
-import type { CaseDetail, Claim, Fact, OcrLine } from "../api/types";
+import type { CaseDetail, Claim, Fact, MissingItem, OcrLine } from "../api/types";
 import { useI18n } from "../i18n";
 import { AppShell } from "../components/AppShell";
 import { Button } from "../components/Button";
@@ -9,6 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorBox } from "../components/ErrorBox";
 import { ClaimText, type ClaimToken } from "../components/ClaimText";
 import { ClaimSummary } from "../components/ClaimSummary";
+import { AttachChecklist } from "../components/AttachChecklist";
 import { ReceiptViewer } from "../components/ReceiptViewer";
 import { DeleteCaseButton } from "../components/DeleteCaseButton";
 import { getToken } from "../util/session";
@@ -80,6 +81,7 @@ export function ClaimPage() {
   const [selected, setSelected] = useState<number[]>([]);
   const [activeMatch, setActiveMatch] = useState<string | null>(null);
   const [deadline, setDeadline] = useState<string | null>(null);
+  const [missing, setMissing] = useState<MissingItem[]>([]);
   const [violations, setViolations] = useState<GuardError["violations"] | null>(null);
   const [needConfirm, setNeedConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -96,6 +98,7 @@ export function ClaimPage() {
       const c = await api.getCase(caseId, token);
       setData(c);
       setDeadline(c.response_deadline);
+      setMissing(await api.getMissing(caseId, token));
       if (c.receipt_document_id) {
         const [ls, url] = await Promise.all([
           api.getReceiptLines(caseId, token, c.receipt_document_id),
@@ -195,6 +198,7 @@ export function ClaimPage() {
       <div className="mt-4"><Timer deadline={deadline} /></div>
 
       {!violations && claim && data && <ClaimSummary data={data} />}
+      {!violations && claim && missing.length > 0 && <AttachChecklist items={missing} />}
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
         {/* Left: claim text — bounded with its own scroll on desktop so the
