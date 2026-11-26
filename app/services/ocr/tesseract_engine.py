@@ -7,11 +7,27 @@ OCR_ENGINE=tesseract once Tesseract is installed (see HANDOFF.md).
 
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 
 from app.services.ocr.base import OcrEngine, OcrLineData
 from app.services.ocr.pdf import extract_pdf_text_lines, rasterize_pdf
 from app.services.ocr.preprocess import preprocess_image
+
+
+# Legal-form prefix read with Latin look-alikes: "TOO «Нур»" -> "ТОО «Нур»".
+_LEGAL_FORM = re.compile(r"^(?:[TТ][OoОо0]{2}|[AА][OО0])(?=\s|«|\"|$)")
+
+
+def _fix_legal_form(text: str) -> str:
+    """Map a Latin-homoglyph ТОО/АО at the start of a line to Cyrillic."""
+    m = _LEGAL_FORM.match(text)
+    if not m:
+        return text
+    word = m.group(0)
+    cyr = "ТОО" if len(word) == 3 else "АО"
+    return cyr + text[len(word):]
 
 
 class TesseractEngine(OcrEngine):
@@ -69,7 +85,10 @@ class TesseractEngine(OcrEngine):
         pytesseract = self._pytesseract()
         image = preprocess_image(file_path)
         data = pytesseract.image_to_data(
-            image, lang=self.langs, output_type=pytesseract.Output.DICT
+            # psm 6 (single uniform block) keeps a receipt row together: with
+            # the default psm 3 the right-aligned amount column ("ИТОГО: ...
+            # 45 990,00") became a separate block on phone photos.
+            image, lang=self.langs, config="--psm 6", output_type=pytesseract.Output.DICT
         )
         if "rus" in self.langs:
             self._fix_currency_code(pytesseract, image, data)
@@ -105,7 +124,7 @@ class TesseractEngine(OcrEngine):
             lines.append(
                 OcrLineData(
                     line_no=line_no,
-                    text=" ".join(g["words"]),
+                    text=_fix_legal_form(" ".join(g["words"])),
                     bbox_x=int(x0),
                     bbox_y=int(y0),
                     bbox_w=int(x1 - x0),

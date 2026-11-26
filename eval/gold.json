@@ -135,5 +135,99 @@
       "reply": "2026-07-08",
       "refusal": "2026-07-12"
     }
+  },
+  "case-010": {
+    "kind": "photo-cash",
+    "seller": "ТОО «Нур Электро»",
+    "purchase_date": "2026-10-15",
+    "total_amount": "45990.00",
+    "currency": "KZT",
+    "items": [
+      "Микроволновка Breeze 20"
+    ],
+    "events": {
+      "contact": "2026-10-18",
+      "reply": "2026-10-18",
+      "refusal": "2026-10-21"
+    }
+  },
+  "case-011": {
+    "kind": "photo-discount",
+    "seller": "ИП Ахметов Д.К.",
+    "purchase_date": "2026-09-03",
+    "total_amount": "71470.00",
+    "currency": "KZT",
+    "items": [
+      "Пылесос Storm X3",
+      "Мешки для пылесоса"
+    ],
+    "events": {
+      "contact": "2026-09-08",
+      "reply": "2026-09-08",
+      "refusal": "2026-09-12"
+    }
+  },
+  "case-012": {
+    "kind": "photo-multi",
+    "seller": "ТОО «Kazyna Retail»",
+    "purchase_date": "2026-08-22",
+    "total_amount": "47970.00",
+    "currency": "KZT",
+    "items": [
+      "Электрочайник Steam 1.7",
+      "Блендер Mix Pro",
+      "Тостер Crisp 2"
+    ],
+    "events": {
+      "contact": "2026-08-24",
+      "reply": "2026-08-24",
+      "refusal": "2026-08-29"
+    }
+  },
+  "case-013": {
+    "kind": "photo-shadow",
+    "seller": "ТОО «Арна Гаджет»",
+    "purchase_date": "2026-11-02",
+    "total_amount": "39900.00",
+    "currency": "KZT",
+    "items": [
+      "Смарт-часы Pulse Fit"
+    ],
+    "events": {
+      "contact": "2026-11-03",
+      "reply": "2026-11-03",
+      "refusal": "2026-11-06"
+    }
+  },
+  "case-014": {
+    "kind": "photo-angle",
+    "seller": "ТОО «Табыс Home»",
+    "purchase_date": "2026-07-11",
+    "total_amount": "17990.00",
+    "currency": "KZT",
+    "items": [
+      "Утюг Glide 2400"
+    ],
+    "events": {
+      "contact": "2026-07-15",
+      "reply": "2026-07-15",
+      "refusal": "2026-07-19"
+    }
+  },
+  "case-015": {
+    "kind": "photo-fold",
+    "seller": "ИП Жумабаева С.",
+    "purchase_date": "2026-06-28",
+    "total_amount": "19390.00",
+    "currency": "KZT",
+    "items": [
+      "Фен Breeze Air",
+      "Расческа"
+    ],
+    "events": {
+      "contact": "2026-06-30",
+      "reply": "2026-07-01",
+      "refusal": "2026-07-04"
+    }
   }
 }
