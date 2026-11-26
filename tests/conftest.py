@@ -19,6 +19,18 @@ from app.core.db import get_session
 from app.main import app
 
 
+@pytest.fixture(autouse=True)
+def _offline_settings(monkeypatch) -> None:
+    """Keep the suite offline whatever the developer's .env holds.
+
+    A real OPENAI_API_KEY / LLM_MODE=auto in .env must not turn tests into paid
+    network calls; tests that need another mode set it explicitly.
+    """
+    monkeypatch.setattr(config.settings, "openai_api_key", "")
+    monkeypatch.setattr(config.settings, "anthropic_api_key", "")
+    monkeypatch.setattr(config.settings, "llm_mode", "fixture")
+
+
 @pytest.fixture()
 def client(tmp_path, monkeypatch) -> Iterator[TestClient]:
     """A TestClient wired to a temp DB and temp data directory."""
