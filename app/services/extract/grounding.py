@@ -19,6 +19,10 @@ from app.services.extract.normalize import (
 DATE_FIELDS = {"purchase_date"}
 NUMERIC_FIELDS = {"total_amount", "price"}
 
+# Receipts write the tenge as KZT, ₸, тг or тенге/теңге (kk). The currency is
+# stored as the ISO code, so for KZT any of these spellings in the line counts.
+_KZT_RE = re.compile(r"(₸|kzt|\bтг\b|\bте[нң]ге\b)", re.IGNORECASE)
+
 
 def _collect_text(line_ids: list[int], lines_by_id: dict[int, OcrLine]) -> str:
     return " ".join(
@@ -51,6 +55,9 @@ def is_grounded(
     if field in NUMERIC_FIELDS:
         target = normalize_number(value)
         return target is not None and target in iter_numbers(text)
+
+    if field == "currency" and value.strip().upper() == "KZT":
+        return bool(_KZT_RE.search(text))
 
     # String fields (seller_name, currency, item name): normalized substring.
     return _norm_text(value) in _norm_text(text)

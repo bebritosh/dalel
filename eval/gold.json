@@ -229,5 +229,36 @@
       "reply": "2026-07-01",
       "refusal": "2026-07-04"
     }
+  },
+  "case-016": {
+    "kind": "photo-kk-cash",
+    "seller": "ЖШС «Алтын Техника»",
+    "purchase_date": "2026-10-21",
+    "total_amount": "52990.00",
+    "currency": "KZT",
+    "items": [
+      "Шаңсорғыш Vortex 5"
+    ],
+    "events": {
+      "contact": "2026-10-23",
+      "reply": "2026-10-24",
+      "refusal": "2026-10-27"
+    }
+  },
+  "case-017": {
+    "kind": "photo-kk-card",
+    "seller": "ЖК Сәрсенбаев Қ.Т.",
+    "purchase_date": "2026-09-14",
+    "total_amount": "24480.00",
+    "currency": "KZT",
+    "items": [
+      "Электр шәйнегі Aqua 1.7",
+      "Тостер Crisp 2"
+    ],
+    "events": {
+      "contact": "2026-09-18",
+      "reply": "2026-09-18",
+      "refusal": "2026-09-22"
+    }
   }
 }

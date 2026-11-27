@@ -96,6 +96,11 @@ def value_in_text(kind: str, value: str, text: str) -> bool:
     if kind == "number":
         n = normalize_number(value)
         return n is not None and n in iter_numbers(text)
+    if kind == "currency" and value.strip().upper() == "KZT":
+        # Same rule as grounding: KZT may be written as ₸, тг, тенге or теңге.
+        from app.services.extract.grounding import _KZT_RE
+
+        return bool(_KZT_RE.search(text))
     return norm_text(value) in norm_text(text)
 
 
@@ -122,7 +127,7 @@ def ocr_recall(gold: dict, text: str) -> dict[str, bool]:
         "seller": fuzzy_in_text(gold["seller"], text),
         "date": value_in_text("date", gold["purchase_date"], text),
         "total": value_in_text("number", gold["total_amount"], text),
-        "currency": value_in_text("string", gold["currency"], text),
+        "currency": value_in_text("currency", gold["currency"], text),
         "item": (
             sum(fuzzy_in_text(i, text) for i in gold["items"]) / len(gold["items"])
             if gold["items"]
@@ -193,7 +198,7 @@ def _grounding_and_hallucination(result, lines, ocr_text: str):
     for name, kind, fld in (("seller_name", "string", f.seller_name),
                             ("purchase_date", "date", f.purchase_date),
                             ("total_amount", "number", f.total_amount),
-                            ("currency", "string", f.currency)):
+                            ("currency", "currency", f.currency)):
         if fld is not None:
             checks.append((name, kind, fld.value, fld.line_ids))
     for it in f.items:

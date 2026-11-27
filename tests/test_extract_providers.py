@@ -67,6 +67,56 @@ def test_rules_missing_fields_reported_unreadable():
     assert {"seller_name", "purchase_date", "total_amount"} <= set(res.unreadable)
 
 
+
+# Kazakh receipt (synthetic). Distractors: subtotal before the discount, cash
+# tendered (larger than the total) and VAT; the total must be ЖИЫНЫ/БАРЛЫҒЫ.
+KK_TEXTS = [
+    "ЖШС «Алтын Техника»",
+    "БСН 200540018834",
+    "Ауысым № 57    Чек № 412",
+    "Кассир: Төлеуова Ә.",
+    "--------------------------------",
+    "Шаңсорғыш Vortex 5",
+    "1 x 52 990,00",
+    "--------------------------------",
+    "Сома: 55 990,00",
+    "Жеңілдік: -3 000,00",
+    "ЖИЫНЫ: 52 990,00",
+    "Қолма-қол: 60 000,00",
+    "оның ішінде ҚҚС 12%: 5 677,50",
+    "Күні: 21.10.2026 16:08:44",
+    "Валюта: теңге",
+]
+
+
+@pytest.mark.parametrize(
+    "total_word",
+    [
+        "ЖИЫНЫ:",
+        "БАРЛЫҒЫ:",
+        # Tesseract without the kaz model: Ғ read as РГ or Г.
+        "БАРЛЫРГЫ:",
+        "Барлыгы:",
+    ],
+)
+def test_rules_extracts_kazakh_receipt(total_word):
+    texts = [total_word + t[len("ЖИЫНЫ:"):] if t.startswith("ЖИЫНЫ:") else t for t in KK_TEXTS]
+    lines = _lines(texts)
+    f = RuleBasedProvider().extract("x", lines).fields
+    assert f.seller_name.value == "ЖШС «Алтын Техника»"
+    assert f.total_amount.value == "52990.00"
+    assert f.total_amount.line_ids == [10]
+    assert f.purchase_date.value == "2026-10-21"
+    assert f.currency.value == "KZT" and f.currency.line_ids == [14]
+    assert [i.name for i in f.items] == ["Шаңсорғыш Vortex 5"]
+
+
+def test_rules_kazakh_service_lines_are_not_items():
+    texts = ["ЖШС «Алтын Техника»", "БСН 200540018834", "Ауысым № 57", "Кун1: 21.10.2026",
+             "САТЫП АЛҒАНЫҢЫЗҒА РАХМЕТ!", "1 x 100,00"]
+    items = RuleBasedProvider().extract("x", _lines(texts)).fields.items
+    assert items == []
+
 # ---------- OpenAI provider ----------
 
 GOOD = {
@@ -221,3 +271,21 @@ def test_provenance_in_api(client, monkeypatch):
     docs = client.get(f"/cases/{case_id}", headers=h).json()["documents"]
     rec = next(d for d in docs if d["kind"] == "receipt")
     assert rec["ocr_source"] == "fixture" and rec["extract_source"] == "fixture"
+
+
+@pytest.mark.parametrize(
+    "text, ok",
+    [
+        ("Валюта: KZT", True),
+        ("ИТОГО: 249 990,00KZT", True),
+        ("Валюта: теңге", True),
+        ("Валюта: тенге", True),
+        ("Барлығы 5 000 ₸", True),
+        ("Итого 5 000 тг", True),
+        ("Итого 5 000", False),
+        ("Кассир: Тгуев", False),
+    ],
+)
+def test_currency_kzt_grounded_by_any_spelling(text, ok):
+    lines = {0: OcrLine(document_id=1, line_no=0, text=text)}
+    assert is_grounded("currency", "KZT", [0], lines) is ok

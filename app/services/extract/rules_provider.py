@@ -18,16 +18,26 @@ from app.services.extract.schema import (
     ExtractionResult,
 )
 
-_TOTAL_RE = re.compile(r"\b(итого|итог|всего|к\s+оплате|total|sum)\b", re.IGNORECASE)
-_STRONG_TOTAL_RE = re.compile(r"\b(итого|total)\b", re.IGNORECASE)
-_CURRENCY_RE = re.compile(r"(₸|\bKZT\b|\bтг\b|\bтенге\b)", re.IGNORECASE)
+# Kazakh receipts: ЖИЫНЫ / БАРЛЫҒЫ = ИТОГО, ТӨЛЕУГЕ = к оплате, теңге.
+# Tesseract without the kaz model reads Kazakh letters as their Russian
+# look-alikes (Ғ -> Г/РГ, Ө -> О/Е, Ң -> Н), so those variants match too.
+_KK_STRONG_TOTAL = r"жиыны|жиынтығы|барлы[ғгр]{1,2}ы"
+_TOTAL_RE = re.compile(
+    rf"\b(итого|итог|всего|к\s+оплате|total|sum|{_KK_STRONG_TOTAL}|т[өое]леуге)\b",
+    re.IGNORECASE,
+)
+_STRONG_TOTAL_RE = re.compile(rf"\b(итого|total|{_KK_STRONG_TOTAL})\b", re.IGNORECASE)
+_CURRENCY_RE = re.compile(r"(₸|\bKZT\b|\bтг\b|\bте[нң]ге\b)", re.IGNORECASE)
 _SEPARATOR_RE = re.compile(r"^[\s\-=_*.~#]{3,}$")
 _QTY_PRICE_RE = re.compile(
     r"^\s*(\d+(?:[.,]\d+)?)\s*(?:шт\.?|pcs\.?|уп\.?)?\s*[xх×*]\s*(\d[\d\s.,]*)\s*$",
     re.IGNORECASE,
 )
 _SKIP_RE = re.compile(
-    r"(кассир|чек\s*№|оплата|спасибо|дата|бин|иин|рнн|тел\.?|ккм|фп|card|карта|thank)",
+    r"(кассир|чек\s*№|оплата|спасибо|дата|бин|иин|рнн|тел\.?|ккм|фп|card|карта|thank"
+    # Kazakh: БСН/ЖСН (BIN/IIN), ауысым (shift), күні (date), төлем (payment),
+    # рахмет (thanks), ФБ/ФДО (fiscal sign / data operator).
+    r"|бсн|жсн|ауысым|к[үуy][нh][іi1]\b|т[өое]лем|рахмет|\bфб\b|\bфдо\b)",
     re.IGNORECASE,
 )
 
