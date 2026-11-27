@@ -29,10 +29,15 @@ _TOTAL_RE = re.compile(
 _STRONG_TOTAL_RE = re.compile(rf"\b(итого|total|{_KK_STRONG_TOTAL})\b", re.IGNORECASE)
 _CURRENCY_RE = re.compile(r"(₸|\bKZT\b|\bтг\b|\bте[нң]ге\b)", re.IGNORECASE)
 _SEPARATOR_RE = re.compile(r"^[\s\-=_*.~#]{3,}$")
+# "qty x price", optionally followed by the line sum: fiscal receipts print
+# "1 x 45 990,00 = 45 990,00" (OCR may read "=" as "-").
 _QTY_PRICE_RE = re.compile(
-    r"^\s*(\d+(?:[.,]\d+)?)\s*(?:шт\.?|pcs\.?|уп\.?)?\s*[xх×*]\s*(\d[\d\s.,]*)\s*$",
+    r"^\s*(\d+(?:[.,]\d+)?)\s*(?:шт\.?|pcs\.?|уп\.?)?\s*[xх×*]\s*(\d[\d\s.,]*?)"
+    r"\s*(?:[=\-–—]\s*\d[\d\s.,]*)?\s*$",
     re.IGNORECASE,
 )
+# Position number before the item name: "1. Пылесос" / "2) Фен".
+_ITEM_NO_RE = re.compile(r"^\s*\d{1,3}[.)]\s+")
 _SKIP_RE = re.compile(
     r"(кассир|чек\s*№|оплата|спасибо|дата|бин|иин|рнн|тел\.?|ккм|фп|card|карта|thank"
     # Kazakh: БСН/ЖСН (BIN/IIN), ауысым (shift), күні (date), төлем (payment),
@@ -137,7 +142,7 @@ class RuleBasedProvider(LlmProvider):
                 if price:
                     items.append(
                         ExtractedItem(
-                            name=prev.text.strip(),
+                            name=_ITEM_NO_RE.sub("", prev.text).strip(),
                             qty=float(m.group(1).replace(",", ".")),
                             price=price,
                             line_ids=[prev.line_no, l.line_no],

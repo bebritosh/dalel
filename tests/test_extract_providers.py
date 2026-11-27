@@ -289,3 +289,29 @@ def test_provenance_in_api(client, monkeypatch):
 def test_currency_kzt_grounded_by_any_spelling(text, ok):
     lines = {0: OcrLine(document_id=1, line_no=0, text=text)}
     assert is_grounded("currency", "KZT", [0], lines) is ok
+
+
+def test_rules_items_with_line_sum_and_position_number():
+    texts = [
+        "ТОО «Kazyna Retail»",
+        "--------------------------------",
+        "1. Электрочайник Steam 1.7",
+        "1 x 12 990,00 = 12 990,00",
+        "2. Мешки для пылесоса",
+        "2х1 990,00 = 3 980, 00",
+        "3) Тостер Crisp 2",
+        "1 х 11 490,00 - 11 490,00",
+        "--------------------------------",
+        "ИТОГО: 28 450,00",
+    ]
+    lines = _lines(texts)
+    items = RuleBasedProvider().extract("x", lines).fields.items
+    assert [(i.name, i.qty, i.price) for i in items] == [
+        ("Электрочайник Steam 1.7", 1.0, "12990.00"),
+        ("Мешки для пылесоса", 2.0, "1990.00"),
+        ("Тостер Crisp 2", 1.0, "11490.00"),
+    ]
+    by_id = {l.line_no: l for l in lines}
+    for it in items:
+        assert is_grounded("item", it.name, it.line_ids, by_id)
+        assert is_grounded("price", it.price, it.line_ids, by_id)
