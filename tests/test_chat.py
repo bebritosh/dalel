@@ -148,3 +148,27 @@ def test_no_event_without_source_message_id():
         ChatMessage(date=date(2026, 11, 6), time="10:15", author="Арман", text="Привет", message_id=""),
     ]
     assert detect_events(msgs, "Пример Электроникс") == []
+
+
+KK_CHAT = """21.10.2026, 09:12 - Нұрлан: Сәлеметсіз бе! Шаңсорғыш алдым, бүгін істемей қалды.
+22.10.2026, 13:40 - Алтын Техника: Сәлеметсіз бе! Чектің фотосын жіберіңізші.
+27.10.2026, 11:25 - Алтын Техника: Бұл кепілдікке жатпайды, ақшаны қайтара алмаймыз.
+"""
+
+
+def test_kazakh_chat_detects_contact_reply_refusal():
+    events = detect_events(parse_whatsapp(KK_CHAT), "ЖШС «Алтын Техника»")
+    assert [(e.kind.value, e.date) for e in events] == [
+        ("contact", date(2026, 10, 21)),
+        ("reply", date(2026, 10, 22)),
+        ("refusal", date(2026, 10, 27)),
+    ]
+
+
+def test_kazakh_refusal_typed_without_kazakh_letters():
+    content = (
+        "21.10.2026, 09:12 - Нурлан: Шансоргыш алдым, истемей калды.\n"
+        "22.10.2026, 10:00 - Алтын Техника: Акшаны кайтара алмаймыз.\n"
+    )
+    kinds = [e.kind.value for e in detect_events(parse_whatsapp(content), "Алтын Техника")]
+    assert kinds == ["contact", "refusal"]

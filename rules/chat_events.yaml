@@ -17,3 +17,17 @@ refusal_keywords:
   - "не возврат"
   - "возврат невозмож"
   - "отказать"
+  # Kazakh (and the same phrases typed without Kazakh letters, as people
+  # often do in chats: қ->к, ү->у, і->и/i).
+  - "бас тарт"            # бас тартамыз / бас тартылды - we refuse / refused
+  - "қайтара алмай"       # қайтара алмаймыз - we cannot return (the money)
+  - "кайтара алмай"
+  - "ауыстыра алмай"      # we cannot replace
+  - "қайтарылмайды"       # not returnable
+  - "кайтарылмайды"
+  - "қайтару мүмкін емес" # return is impossible
+  - "кайтару мумкин емес"
+  - "кепілдікке жатпай"   # not covered by the warranty
+  - "кепилдикке жатпай"
+  - "кепілдік емес"       # not a warranty case
+  - "кепилдик емес"

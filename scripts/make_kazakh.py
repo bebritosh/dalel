@@ -7,7 +7,8 @@ text is in Kazakh: ЖШС (= ТОО), БСН (= БИН), «ЖИЫНЫ»/«БАР
 Distractor amounts (cash tendered, subtotal before discount, VAT) are kept so
 the extractor must pick the total line, not the largest number.
 
-The chats stay in Russian: detecting Kazakh chat phrases is a separate task.
+case-016 has a Russian chat; case-017 has a Kazakh chat (contact, a polite
+seller reply, then a refusal in Kazakh) for rules/chat_events.yaml.
 
 Outputs: eval/cases/case-016..case-017/{receipt.png,chat.txt} and the matching
 entries in eval/gold.json (exact by construction, NOT OCR output). Existing
@@ -21,6 +22,7 @@ from __future__ import annotations
 
 import json
 import random
+from datetime import date, timedelta
 
 import make_realistic as mr
 
@@ -39,9 +41,9 @@ SPECS = [
          bin="880214300527", addr="Астана қ., Қабанбай батыр даңғ. 21", buyer="Гүлнар Омарова",
          when=(2026, 9, 14, "12:51:09"), shift=133, no=1876, cashier="Сәрсенбаев Қ.",
          items=[("Электр шәйнегі Aqua 1.7", 1, 1499000), ("Тостер Crisp 2", 1, 1149000)],
-         discount=200000, pay="card", product="электрочайник Aqua",
+         discount=200000, pay="card", product="электрочайник Aqua", product_kk="Aqua электр шәйнегін",
          total_word="БАРЛЫҒЫ:", currency_line="Валюта: теңге",
-         gaps=(4, 4, 8), persp=0.08, shadow=0.3, fold=False, blur=0.6, jpeg=74),
+         chat_lang="kk", gaps=(4, 4, 8), persp=0.08, shadow=0.3, fold=False, blur=0.6, jpeg=74),
 ]
 
 
@@ -88,6 +90,39 @@ def _receipt_lines(spec: dict, rng: random.Random) -> tuple[list[str], int]:
     return lines, total
 
 
+def _chat_kk(spec: dict) -> tuple[str, dict]:
+    """Kazakh WhatsApp chat with the same event dates as mr._chat()."""
+    y, m, d, _ = spec["when"]
+    buy = date(y, m, d)
+    g_contact, g_reply, g_refuse = spec["gaps"]
+    d_contact = buy + timedelta(days=g_contact)
+    d_reply = buy + timedelta(days=g_reply)
+    d_refuse = buy + timedelta(days=g_refuse)
+    shop, buyer = spec["shop"], spec["buyer"]
+
+    def f(dt: date, hm: str) -> str:
+        return f"{dt.day:02d}.{dt.month:02d}.{dt.year}, {hm}"
+
+    chat = (
+        f"{f(d_contact, '09:12')} - {buyer}: Сәлеметсіз бе! {d:02d}.{m:02d} сізден "
+        f"{spec['product_kk']} алдым, бүгін істемей қалды\n"
+        f"{f(d_contact, '09:13')} - {buyer}: Чек сақталған, фотосын жібере аламын\n"
+        f"{f(d_reply, '13:40')} - {shop}: Сәлеметсіз бе! Чектің фотосын және ақаудың "
+        f"видеосын жіберіңізші\n"
+        f"{f(d_reply, '18:03')} - {buyer}: Міне, чек пен видео. Ақшаны қайтаруыңызды "
+        f"немесе тауарды ауыстыруыңызды сұраймын\n"
+        f"{f(d_refuse, '11:25')} - {shop}: Видеоны қарадық. Бұл механикалық зақым, "
+        f"кепілдікке жатпайды, ақшаны қайтара алмаймыз.\n"
+        f"{f(d_refuse, '11:31')} - {buyer}: Зақым болған жоқ, мен шағым жазамын\n"
+    )
+    events = {
+        "contact": d_contact.isoformat(),
+        "reply": d_reply.isoformat(),
+        "refusal": d_refuse.isoformat(),
+    }
+    return chat, events
+
+
 def build() -> None:
     rng = random.Random(SEED)
     gold = json.loads(mr.GOLD_PATH.read_text(encoding="utf-8")) if mr.GOLD_PATH.exists() else {}
@@ -98,7 +133,10 @@ def build() -> None:
         lines, total = _receipt_lines(spec, rng)
         mr._photo(mr._paper(lines, rng), spec, rng).save(out / "receipt.png")
         # _chat() strips ТОО/ИП from `seller`; pass the bare shop name instead.
-        chat, events = mr._chat(dict(spec, seller=spec["shop"]))
+        if spec.get("chat_lang") == "kk":
+            chat, events = _chat_kk(spec)
+        else:
+            chat, events = mr._chat(dict(spec, seller=spec["shop"]))
         (out / "chat.txt").write_text(chat, encoding="utf-8")
         y, m, d, _ = spec["when"]
         gold[case_id] = {
