@@ -11,6 +11,25 @@ function eventSource(messageId?: string | null): "whatsapp" | "telegram" | null 
   return null;
 }
 
+// Event descriptions are generated in Russian by the backend
+// (app/services/timeline.py, app/services/chat.py): either a fixed label or
+// "<label>: «<chat quote>»". Swap the known label for the localized one and
+// keep the quote verbatim; anything else is shown as is.
+const RU_LABELS: Record<string, string> = {
+  "Покупка товара по чеку": "purchase",
+  "Первое обращение к продавцу": "contact",
+  "Ответ продавца": "reply",
+  "Отказ продавца": "refusal",
+};
+
+function localizeDescription(text: string, t: (key: string) => string): string {
+  const m = /^([^:«]+?)(: («[\s\S]*»))?$/.exec(text);
+  const kind = m ? RU_LABELS[m[1]] : undefined;
+  if (!m || !kind) return text;
+  const label = t(`eventDesc.${kind}`);
+  return m[3] ? `${label}: ${m[3]}` : label;
+}
+
 export function Timeline({ events }: { events: TimelineEvent[] }) {
   const { t } = useI18n();
   return (
@@ -36,7 +55,7 @@ export function Timeline({ events }: { events: TimelineEvent[] }) {
                 </span>
               )}
             </div>
-            <p className="mt-1 text-sm text-text">{e.description}</p>
+            <p className="mt-1 text-sm text-text">{localizeDescription(e.description, t)}</p>
           </li>
         );
       })}
