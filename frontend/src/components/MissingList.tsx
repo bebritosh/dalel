@@ -1,8 +1,15 @@
 import type { MissingItem } from "../api/types";
 import { useI18n } from "../i18n";
 
+// title/why/fix come from the backend (rules/missing_evidence.yaml, Russian).
+// Show the localized text by rule_id when the dictionary has it; otherwise
+// fall back to the server text so a new rule is never shown blank.
 export function MissingList({ items }: { items: MissingItem[] }) {
   const { t } = useI18n();
+  const tr = (key: string, fallback: string) => {
+    const s = t(key);
+    return s === key ? fallback : s;
+  };
   return (
     <ul className="space-y-3">
       {items.map((m) => (
@@ -18,7 +25,7 @@ export function MissingList({ items }: { items: MissingItem[] }) {
                 m.resolved ? "text-muted line-through" : "text-text"
               }`}
             >
-              {m.title}
+              {tr(`missing.${m.rule_id}.title`, m.title)}
             </h3>
             {m.resolved && (
               <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
@@ -30,11 +37,11 @@ export function MissingList({ items }: { items: MissingItem[] }) {
             <dl className="mt-2 space-y-1 text-sm">
               <div>
                 <dt className="inline font-medium text-muted">{t("missing.why")}: </dt>
-                <dd className="inline text-text">{m.why}</dd>
+                <dd className="inline text-text">{tr(`missing.${m.rule_id}.why`, m.why)}</dd>
               </div>
               <div>
                 <dt className="inline font-medium text-muted">{t("missing.fix")}: </dt>
-                <dd className="inline text-text">{m.fix}</dd>
+                <dd className="inline text-text">{tr(`missing.${m.rule_id}.fix`, m.fix)}</dd>
               </div>
             </dl>
           )}

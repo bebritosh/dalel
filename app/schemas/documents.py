@@ -18,6 +18,8 @@ class DocumentRead(BaseModel):
     sha256: str
     mime_type: str
     created_at: datetime
+    ocr_source: str = ""  # "fixture" | "tesseract" ("" until OCR ran)
+    extract_source: str = ""  # "fixture" | "openai" | "anthropic" | "rules"
 
 
 class OcrLineRead(BaseModel):

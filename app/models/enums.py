@@ -35,5 +35,6 @@ class EventKind(str, Enum):
     purchase = "purchase"
     defect = "defect"
     contact = "contact"
+    reply = "reply"
     refusal = "refusal"
     other = "other"

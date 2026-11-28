@@ -39,6 +39,10 @@ class Document(SQLModel, table=True):
     sha256: str = Field(index=True)
     mime_type: str
     created_at: datetime = Field(default_factory=_utcnow)
+    # Provenance: "fixture" | "tesseract" ; "fixture" | "openai" | "anthropic" | "rules".
+    # Empty until OCR / extraction has run. Added columns auto-migrate on startup.
+    ocr_source: str = ""
+    extract_source: str = ""
 
 
 class OcrLine(SQLModel, table=True):
@@ -79,6 +83,9 @@ class Event(SQLModel, table=True):
     kind: EventKind
     description: str = ""
     document_id: int | None = Field(default=None, foreign_key="document.id")
+    # Source message this event was derived from (synthetic "line:N" for WhatsApp,
+    # Telegram's numeric id as a string). An event without a source is not created.
+    message_id: str | None = Field(default=None)
     needs_review: bool = True
 
 

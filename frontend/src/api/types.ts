@@ -3,12 +3,17 @@
 
 export type DocumentKind = "receipt" | "chat" | "photo" | "warranty";
 export type CaseStatus = "draft" | "extracted" | "confirmed" | "claim_ready";
-export type EventKind = "purchase" | "defect" | "contact" | "refusal" | "other";
+export type EventKind = "purchase" | "defect" | "contact" | "reply" | "refusal" | "other";
 
 export interface CaseCreated {
   id: number;
   access_token: string;
 }
+
+// Provenance of OCR / extraction output. Optional: older backends omit them,
+// and the UI shows no badge when they are absent.
+export type OcrSource = "fixture" | "tesseract";
+export type ExtractSource = "fixture" | "openai" | "anthropic" | "rules";
 
 export interface DocumentDto {
   id: number;
@@ -17,6 +22,8 @@ export interface DocumentDto {
   sha256: string;
   mime_type: string;
   created_at: string;
+  ocr_source?: OcrSource | null;
+  extract_source?: ExtractSource | null;
 }
 
 export interface Fact {
@@ -29,6 +36,8 @@ export interface Fact {
   grounded: boolean;
   needs_review: boolean;
   confirmed_by_user: boolean;
+  ocr_source?: OcrSource | null;
+  extract_source?: ExtractSource | null;
 }
 
 export interface CaseDetail {
@@ -48,6 +57,7 @@ export interface TimelineEvent {
   kind: EventKind;
   description: string;
   document_id: number | null;
+  message_id?: string | null;
   needs_review: boolean;
 }
 
@@ -65,6 +75,7 @@ export interface CheckResult {
   message: string;
   fact_ids: number[];
   event_ids: number[];
+  document_ids?: number[];
 }
 
 export interface Claim {

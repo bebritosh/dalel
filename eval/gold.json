@@ -1,0 +1,264 @@
+{
+  "case-001": {
+    "kind": "clean",
+    "seller": "ТОО «Алем Техно»",
+    "purchase_date": "2026-03-14",
+    "total_amount": "389900.00",
+    "currency": "KZT",
+    "items": [
+      "Ноутбук Nova 15"
+    ],
+    "events": {
+      "contact": "2026-03-15",
+      "reply": "2026-03-15",
+      "refusal": "2026-03-20"
+    }
+  },
+  "case-002": {
+    "kind": "clean",
+    "seller": "ИП Бекова",
+    "purchase_date": "2026-06-02",
+    "total_amount": "63990.00",
+    "currency": "KZT",
+    "items": [
+      "Пылесос Vortex 2000",
+      "Фильтр HEPA"
+    ],
+    "events": {
+      "contact": "2026-06-04",
+      "reply": "2026-06-04",
+      "refusal": "2026-06-10"
+    }
+  },
+  "case-003": {
+    "kind": "clean",
+    "seller": "ТОО «Сары Маркет»",
+    "purchase_date": "2026-09-21",
+    "total_amount": "27990.00",
+    "currency": "KZT",
+    "items": [
+      "Наушники Pulse BT"
+    ],
+    "events": {
+      "contact": "2026-09-22",
+      "reply": "2026-09-22",
+      "refusal": "2026-09-26"
+    }
+  },
+  "case-004": {
+    "kind": "tilt",
+    "seller": "ТОО «Дала Моторс»",
+    "purchase_date": "2026-01-18",
+    "total_amount": "246000.00",
+    "currency": "KZT",
+    "items": [
+      "Шины зимние R17"
+    ],
+    "events": {
+      "contact": "2026-01-21",
+      "reply": "2026-01-21",
+      "refusal": "2026-01-27"
+    }
+  },
+  "case-005": {
+    "kind": "tilt",
+    "seller": "ТОО «Жулдыз Бытовая техника»",
+    "purchase_date": "2026-04-09",
+    "total_amount": "214500.00",
+    "currency": "KZT",
+    "items": [
+      "Стиральная машина Aqua 7"
+    ],
+    "events": {
+      "contact": "2026-04-10",
+      "reply": "2026-04-10",
+      "refusal": "2026-04-16"
+    }
+  },
+  "case-006": {
+    "kind": "tilt",
+    "seller": "ИП Нурлан Сериков",
+    "purchase_date": "2026-08-30",
+    "total_amount": "159000.00",
+    "currency": "KZT",
+    "items": [
+      "Смартфон Orbit S5"
+    ],
+    "events": {
+      "contact": "2026-09-01",
+      "reply": "2026-09-01",
+      "refusal": "2026-09-09"
+    }
+  },
+  "case-007": {
+    "kind": "hard-glare",
+    "seller": "ТОО «Арай Электроникс»",
+    "purchase_date": "2026-10-03",
+    "total_amount": "119990.00",
+    "currency": "KZT",
+    "items": [
+      "Планшет Slate 10"
+    ],
+    "events": {
+      "contact": "2026-10-04",
+      "reply": "2026-10-04",
+      "refusal": "2026-10-11"
+    }
+  },
+  "case-008": {
+    "kind": "hard-blur",
+    "seller": "ТОО «Кемел Трейд»",
+    "purchase_date": "2026-05-12",
+    "total_amount": "342000.00",
+    "currency": "KZT",
+    "items": [
+      "Холодильник Frost 300"
+    ],
+    "events": {
+      "contact": "2026-05-14",
+      "reply": "2026-05-14",
+      "refusal": "2026-05-18"
+    }
+  },
+  "case-009": {
+    "kind": "hard-small",
+    "seller": "ТОО «Берекет Групп»",
+    "purchase_date": "2026-07-07",
+    "total_amount": "91100.00",
+    "currency": "KZT",
+    "items": [
+      "Кофемашина Aroma One",
+      "Чехол"
+    ],
+    "events": {
+      "contact": "2026-07-08",
+      "reply": "2026-07-08",
+      "refusal": "2026-07-12"
+    }
+  },
+  "case-010": {
+    "kind": "photo-cash",
+    "seller": "ТОО «Нур Электро»",
+    "purchase_date": "2026-10-15",
+    "total_amount": "45990.00",
+    "currency": "KZT",
+    "items": [
+      "Микроволновка Breeze 20"
+    ],
+    "events": {
+      "contact": "2026-10-18",
+      "reply": "2026-10-18",
+      "refusal": "2026-10-21"
+    }
+  },
+  "case-011": {
+    "kind": "photo-discount",
+    "seller": "ИП Ахметов Д.К.",
+    "purchase_date": "2026-09-03",
+    "total_amount": "71470.00",
+    "currency": "KZT",
+    "items": [
+      "Пылесос Storm X3",
+      "Мешки для пылесоса"
+    ],
+    "events": {
+      "contact": "2026-09-08",
+      "reply": "2026-09-08",
+      "refusal": "2026-09-12"
+    }
+  },
+  "case-012": {
+    "kind": "photo-multi",
+    "seller": "ТОО «Kazyna Retail»",
+    "purchase_date": "2026-08-22",
+    "total_amount": "47970.00",
+    "currency": "KZT",
+    "items": [
+      "Электрочайник Steam 1.7",
+      "Блендер Mix Pro",
+      "Тостер Crisp 2"
+    ],
+    "events": {
+      "contact": "2026-08-24",
+      "reply": "2026-08-24",
+      "refusal": "2026-08-29"
+    }
+  },
+  "case-013": {
+    "kind": "photo-shadow",
+    "seller": "ТОО «Арна Гаджет»",
+    "purchase_date": "2026-11-02",
+    "total_amount": "39900.00",
+    "currency": "KZT",
+    "items": [
+      "Смарт-часы Pulse Fit"
+    ],
+    "events": {
+      "contact": "2026-11-03",
+      "reply": "2026-11-03",
+      "refusal": "2026-11-06"
+    }
+  },
+  "case-014": {
+    "kind": "photo-angle",
+    "seller": "ТОО «Табыс Home»",
+    "purchase_date": "2026-07-11",
+    "total_amount": "17990.00",
+    "currency": "KZT",
+    "items": [
+      "Утюг Glide 2400"
+    ],
+    "events": {
+      "contact": "2026-07-15",
+      "reply": "2026-07-15",
+      "refusal": "2026-07-19"
+    }
+  },
+  "case-015": {
+    "kind": "photo-fold",
+    "seller": "ИП Жумабаева С.",
+    "purchase_date": "2026-06-28",
+    "total_amount": "19390.00",
+    "currency": "KZT",
+    "items": [
+      "Фен Breeze Air",
+      "Расческа"
+    ],
+    "events": {
+      "contact": "2026-06-30",
+      "reply": "2026-07-01",
+      "refusal": "2026-07-04"
+    }
+  },
+  "case-016": {
+    "kind": "photo-kk-cash",
+    "seller": "ЖШС «Алтын Техника»",
+    "purchase_date": "2026-10-21",
+    "total_amount": "52990.00",
+    "currency": "KZT",
+    "items": [
+      "Шаңсорғыш Vortex 5"
+    ],
+    "events": {
+      "contact": "2026-10-23",
+      "reply": "2026-10-24",
+      "refusal": "2026-10-27"
+    }
+  },
+  "case-017": {
+    "kind": "photo-kk-card",
+    "seller": "ЖК Сәрсенбаев Қ.Т.",
+    "purchase_date": "2026-09-14",
+    "total_amount": "24480.00",
+    "currency": "KZT",
+    "items": [
+      "Электр шәйнегі Aqua 1.7",
+      "Тостер Crisp 2"
+    ],
+    "events": {
+      "contact": "2026-09-18",
+      "reply": "2026-09-18",
+      "refusal": "2026-09-22"
+    }
+  }
+}

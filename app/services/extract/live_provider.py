@@ -38,6 +38,8 @@ class MissingApiKeyError(RuntimeError):
 class LiveProvider(LlmProvider):
     """Anthropic-backed extraction provider."""
 
+    source = "anthropic"
+
     def __init__(self, api_key: str = "", model: str = "") -> None:
         self.api_key = api_key or settings.anthropic_api_key
         self.model = model or settings.anthropic_model

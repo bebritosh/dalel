@@ -13,3 +13,4 @@ class CheckResult(BaseModel):
     message: str
     fact_ids: list[int] = Field(default_factory=list)
     event_ids: list[int] = Field(default_factory=list)
+    document_ids: list[int] = Field(default_factory=list)

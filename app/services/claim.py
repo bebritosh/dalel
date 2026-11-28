@@ -1,12 +1,14 @@
 """Claim assembly from confirmed facts and events only.
 
 The text is built strictly from confirmed facts (and event dates). No free LLM
-text is used. Legal references come only from rules/legal_refs.json as stubs.
+text is used. Legal references come only from rules/legal_refs.json (checked against
+adilet.zan.kz, pending lawyer review) and are copied verbatim.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -23,6 +25,18 @@ from app.services.extract.normalize import (
 
 _LEGAL_PATH = Path("rules/legal_refs.json")
 _REQUIRED = ("seller_name", "purchase_date", "total_amount")
+
+# Characters not allowed in XML 1.0. OCR can emit control characters (U+0000..
+# U+001F except tab/newline/CR); if they reach the DOCX, Word refuses to open it
+# ("content cannot be read"). Strip them once, before any substitution.
+_XML_INVALID = re.compile(
+    "[^\u0009\u000a\u000d -퟿-�\U00010000-\U0010ffff]"
+)
+
+
+def _xml_safe(value: str) -> str:
+    """Remove characters invalid in XML 1.0 (keeps tab/newline/CR)."""
+    return _XML_INVALID.sub("", value or "")
 
 
 class RequiredFieldsError(Exception):
@@ -88,13 +102,16 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
         if e.date:
             allowed_dates.add(e.date)
 
-    seller = confirmed["seller_name"].value
+    # Sanitize every user/OCR-derived string once, here, before it enters the
+    # claim text or the DOCX context. Numbers/dates are reformatted from
+    # normalized values and need no cleaning.
+    seller = _xml_safe(confirmed["seller_name"].value)
     purchase_date = normalize_date(confirmed["purchase_date"].value)
     amount = _fmt_amount(confirmed["total_amount"].value)
-    currency = confirmed["currency"].value if "currency" in confirmed else ""
+    currency = _xml_safe(confirmed["currency"].value) if "currency" in confirmed else ""
 
     items = [
-        confirmed[k].value
+        _xml_safe(confirmed[k].value)
         for k in sorted(confirmed)
         if k.startswith("item_") and not k.endswith("_price")
     ]
@@ -110,6 +127,7 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
     refusal_d = event_date(EventKind.refusal)
 
     legal = _load_legal()
+    refs_by_id = {r["id"]: r for r in legal}
 
     context = {
         "seller": seller,
@@ -120,6 +138,8 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
         "contact_date": _fmt_date(contact_d),
         "refusal_date": _fmt_date(refusal_d),
         "legal": legal,
+        "remedy_citation": refs_by_id.get("remedies_for_defect", {}).get("citation", ""),
+        "term_citation": refs_by_id.get("seller_response_term", {}).get("citation", ""),
     }
 
     # Build the authoritative plain text (guard runs on this; DOCX mirrors it).
@@ -149,10 +169,19 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
             f"— {context['refusal_date']}: продавец отказал в удовлетворении требования."
         )
     lines.append("")
+    remedy = refs_by_id.get("remedies_for_defect")
+    term = refs_by_id.get("seller_response_term")
     lines.append("Требование:")
+    basis = f"На основании {remedy['citation']} прошу" if remedy else "Прошу"
     lines.append(
-        f"Прошу вернуть уплаченную за товар денежную сумму {amount_str}."
+        f"{basis} расторгнуть договор купли-продажи и вернуть уплаченную "
+        f"за товар денежную сумму {amount_str}."
     )
+    if term:
+        lines.append(
+            "Ответ на претензию прошу дать в письменной форме в течение десяти "
+            f"календарных дней со дня её получения ({term['citation']})."
+        )
     lines.append("")
     lines.append("Приложения:")
     lines.append("— копия чека;")
@@ -160,7 +189,7 @@ def build_claim(session: Session, case: Case) -> ClaimBuild:
     lines.append("")
     lines.append("Правовое обоснование:")
     for ref in legal:
-        lines.append(f"— {ref['title']}: [норма уточняется юристом].")
+        lines.append(f"— {ref['citation']}: {ref['text']}.")
     lines.append("")
     lines.append("[ФИО заявителя], подпись, дата.")
 

@@ -9,15 +9,28 @@ from sqlmodel import Session, select
 from app.core.config import settings
 from app.models import Document, DocumentKind, OcrLine
 from app.services.ocr.base import OcrEngine
-from app.services.ocr.fixture_engine import FixtureOcrEngine
+from app.services.ocr.fixture_engine import FIXTURES_DIR, FixtureOcrEngine
 
 # Kinds that are OCR'd for field extraction.
 OCR_KINDS = {DocumentKind.receipt, DocumentKind.warranty}
 
 
-def get_ocr_engine() -> OcrEngine:
-    """Return the configured OCR engine. Defaults to the fixture engine."""
-    if settings.ocr_engine == "tesseract":
+def ocr_mode() -> str:
+    """Effective OCR mode. LLM_MODE=auto drives OCR auto-routing too."""
+    return "auto" if settings.llm_mode == "auto" else settings.ocr_engine
+
+
+def has_layout_fixture(sha256: str) -> bool:
+    """True if a committed layout fixture exists for this file hash."""
+    return (FIXTURES_DIR / f"{sha256}.layout.json").exists()
+
+
+def get_ocr_engine(sha256: str | None = None) -> OcrEngine:
+    """Return the OCR engine. Auto mode: known sha256 -> fixture, else Tesseract."""
+    mode = ocr_mode()
+    if mode == "auto":
+        mode = "fixture" if sha256 and has_layout_fixture(sha256) else "tesseract"
+    if mode == "tesseract":
         # Imported lazily so pytesseract/Tesseract are only needed in this mode.
         from app.services.ocr.tesseract_engine import TesseractEngine
 
@@ -38,7 +51,11 @@ def run_ocr(session: Session, document: Document) -> list[OcrLine]:
     if document.kind not in OCR_KINDS:
         return []
 
-    engine = get_ocr_engine()
+    engine = get_ocr_engine(document.sha256)
+    document.ocr_source = (
+        "fixture" if isinstance(engine, FixtureOcrEngine) else "tesseract"
+    )
+    session.add(document)
     data_lines = engine.recognize(Path(document.stored_path), document.mime_type)
 
     lines: list[OcrLine] = []

@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlmodel import Session, select
 
 from app.models import Document, DocumentKind, Event, EventKind, Fact
-from app.services.chat import detect_events, parse_whatsapp
+from app.services.chat import detect_events, parse_telegram, parse_whatsapp
 from app.services.extract.normalize import normalize_date
 
 
@@ -57,10 +57,11 @@ def build_events(session: Session, case_id: int) -> list[Event]:
     ).all()
     for doc in chat_docs:
         path = Path(doc.stored_path)
-        if path.suffix.lower() != ".txt" or not path.exists():
-            continue  # Telegram JSON is out of scope for this MVP build
+        suffix = path.suffix.lower()
+        if not path.exists() or suffix not in (".txt", ".json"):
+            continue
         content = path.read_text(encoding="utf-8", errors="replace")
-        messages = parse_whatsapp(content)
+        messages = parse_telegram(content) if suffix == ".json" else parse_whatsapp(content)
         for det in detect_events(messages, seller_name):
             created.append(
                 Event(
@@ -69,6 +70,7 @@ def build_events(session: Session, case_id: int) -> list[Event]:
                     kind=det.kind,
                     description=det.description,
                     document_id=doc.id,
+                    message_id=det.message_id,
                     needs_review=True,
                 )
             )
@@ -85,8 +87,9 @@ _ORDER = {
     EventKind.purchase: 0,
     EventKind.defect: 1,
     EventKind.contact: 2,
-    EventKind.refusal: 3,
-    EventKind.other: 4,
+    EventKind.reply: 3,
+    EventKind.refusal: 4,
+    EventKind.other: 5,
 }
 
 

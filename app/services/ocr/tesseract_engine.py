@@ -7,11 +7,27 @@ OCR_ENGINE=tesseract once Tesseract is installed (see HANDOFF.md).
 
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 
 from app.services.ocr.base import OcrEngine, OcrLineData
 from app.services.ocr.pdf import extract_pdf_text_lines, rasterize_pdf
 from app.services.ocr.preprocess import preprocess_image
+
+
+# Legal-form prefix read with Latin look-alikes: "TOO «Нур»" -> "ТОО «Нур»".
+_LEGAL_FORM = re.compile(r"^(?:[TТ][OoОо0]{2}|[AА][OО0])(?=\s|«|\"|$)")
+
+
+def _fix_legal_form(text: str) -> str:
+    """Map a Latin-homoglyph ТОО/АО at the start of a line to Cyrillic."""
+    m = _LEGAL_FORM.match(text)
+    if not m:
+        return text
+    word = m.group(0)
+    cyr = "ТОО" if len(word) == 3 else "АО"
+    return cyr + text[len(word):]
 
 
 class TesseractEngine(OcrEngine):
@@ -28,12 +44,54 @@ class TesseractEngine(OcrEngine):
             pytesseract.pytesseract.tesseract_cmd = self.tesseract_cmd
         return pytesseract
 
+    @staticmethod
+    def _fix_currency_code(pytesseract, image, data: dict) -> None:
+        """Cross-check the currency code with an eng-only pass.
+
+        With rus+eng, Tesseract often reads "KZT" as Cyrillic look-alikes
+        ("КИТ", "КТ", "КРТ"). A Latin-only pass reads it reliably, so when it
+        sees a standalone KZT word, the overlapping primary word is replaced by
+        what that second real OCR pass read (nothing is invented).
+        """
+        latin = pytesseract.image_to_data(
+            image, lang="eng", output_type=pytesseract.Output.DICT
+        )
+        def box(d: dict, k: int) -> tuple[int, int, int, int]:
+            return (d["left"][k], d["top"][k],
+                    d["left"][k] + d["width"][k], d["top"][k] + d["height"][k])
+
+        def iou(a: tuple, b: tuple) -> float:
+            w = min(a[2], b[2]) - max(a[0], b[0])
+            h = min(a[3], b[3]) - max(a[1], b[1])
+            if w <= 0 or h <= 0:
+                return 0.0
+            inter = w * h
+            area = lambda r: (r[2] - r[0]) * (r[3] - r[1])  # noqa: E731
+            return inter / (area(a) + area(b) - inter)
+
+        for j, word in enumerate(latin["text"]):
+            if (word or "").strip().upper() != "KZT":
+                continue
+            best, best_iou = None, 0.3  # require a real overlap, not containment
+            for i, text in enumerate(data["text"]):
+                if (text or "").strip():
+                    score = iou(box(latin, j), box(data, i))
+                    if score > best_iou:
+                        best, best_iou = i, score
+            if best is not None:
+                data["text"][best] = "KZT"
+
     def _recognize_image(self, file_path: Path, page: int = 0) -> list[OcrLineData]:
         pytesseract = self._pytesseract()
         image = preprocess_image(file_path)
         data = pytesseract.image_to_data(
-            image, lang=self.langs, output_type=pytesseract.Output.DICT
+            # psm 6 (single uniform block) keeps a receipt row together: with
+            # the default psm 3 the right-aligned amount column ("ИТОГО: ...
+            # 45 990,00") became a separate block on phone photos.
+            image, lang=self.langs, config="--psm 6", output_type=pytesseract.Output.DICT
         )
+        if "rus" in self.langs:
+            self._fix_currency_code(pytesseract, image, data)
         # Group words into lines by (block_num, par_num, line_num).
         groups: dict[tuple[int, int, int], dict] = {}
         n = len(data["text"])
@@ -66,7 +124,7 @@ class TesseractEngine(OcrEngine):
             lines.append(
                 OcrLineData(
                     line_no=line_no,
-                    text=" ".join(g["words"]),
+                    text=_fix_legal_form(" ".join(g["words"])),
                     bbox_x=int(x0),
                     bbox_y=int(y0),
                     bbox_w=int(x1 - x0),

@@ -9,6 +9,8 @@ import { EmptyState } from "../components/EmptyState";
 import { ErrorBox } from "../components/ErrorBox";
 import { FieldRow } from "../components/FieldRow";
 import { Timeline } from "../components/Timeline";
+import { DeleteCaseButton } from "../components/DeleteCaseButton";
+import { ProvenanceBadge } from "../components/ProvenanceBadge";
 import { MissingList } from "../components/MissingList";
 import { getToken, setToken } from "../util/session";
 
@@ -131,6 +133,7 @@ export function ReviewPage() {
         {/* Left: fields */}
         <section>
           <h2 className="text-xl font-semibold">{t("review.fieldsTitle")}</h2>
+          <ProvenanceBadge data={data} />
           {generalChecks.map((c) => (
             <p key={c.code + c.message} className="mt-2 text-sm text-danger">
               {c.message} <span className="text-muted">({c.code})</span>
@@ -159,6 +162,9 @@ export function ReviewPage() {
                 {t("review.remaining", { n: remaining })}
               </p>
             )}
+          </div>
+          <div className="mt-6">
+            <DeleteCaseButton caseId={caseId} />
           </div>
         </section>
 

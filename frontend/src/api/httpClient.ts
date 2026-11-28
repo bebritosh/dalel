@@ -141,7 +141,7 @@ export class HttpClient implements ApiClient {
   async exportClaim(
     caseId: number,
     token: string,
-    format: "docx",
+    format: "docx" | "pdf",
   ): Promise<Blob> {
     const resp = await fetch(
       `${BASE}/cases/${caseId}/export?format=${format}`,

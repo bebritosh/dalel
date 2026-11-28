@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, GuardError } from "../api";
-import type { CaseDetail, Claim, Fact, OcrLine } from "../api/types";
+import type { CaseDetail, Claim, Fact, MissingItem, OcrLine } from "../api/types";
 import { useI18n } from "../i18n";
 import { AppShell } from "../components/AppShell";
 import { Button } from "../components/Button";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorBox } from "../components/ErrorBox";
 import { ClaimText, type ClaimToken } from "../components/ClaimText";
+import { ClaimSummary } from "../components/ClaimSummary";
+import { AttachChecklist } from "../components/AttachChecklist";
 import { ReceiptViewer } from "../components/ReceiptViewer";
+import { DeleteCaseButton } from "../components/DeleteCaseButton";
 import { getToken } from "../util/session";
 import { fmtAmount, fmtDate } from "../util/format";
+import { saveBlob } from "../util/download";
 
 function buildTokens(data: CaseDetail): ClaimToken[] {
   const tokens: ClaimToken[] = [];
@@ -34,24 +38,32 @@ function buildTokens(data: CaseDetail): ClaimToken[] {
 
 function Timer({ deadline }: { deadline: string | null }) {
   const { t } = useI18n();
+  // 10 calendar days: para. 2 of art. 42-4 of the consumer protection law
+  // (rules/legal_refs.json, seller_response_term).
+  const note = (
+    <span className="font-medium">{t("claim.timerBefore")}</span>
+  );
   if (!deadline) {
     return (
       <div className="rounded-card border border-border bg-surface px-4 py-3 text-sm">
-        <span className="font-medium">{t("claim.timerBefore")}</span>
+        <span className="font-medium text-muted">{t("claim.notSent")}.</span>{" "}
+        {note}
         <span className="ml-2 text-muted">{t("claim.timerIdle")}</span>
       </div>
     );
   }
-  const end = new Date(`${deadline}T23:59:59`).getTime();
-  const diff = end - Date.now();
-  const days = Math.max(0, Math.floor(diff / 86400000));
-  const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+  // Whole calendar days from today to the deadline date, so the count matches
+  // the stated 10-day period (date-only diff, no partial-day rounding up).
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(`${deadline}T00:00:00`).getTime();
+  const days = Math.max(0, Math.round((end - today.getTime()) / 86400000));
   return (
     <div className="rounded-card border border-accent/30 bg-accent/5 px-4 py-3 text-sm">
-      <span className="font-medium text-accent">{t("claim.sent")}.</span>{" "}
-      <span className="tabular">
-        {days} дн. {hours} ч.
-      </span>
+      <span className="font-medium text-accent">{t("claim.sent")}.</span> {note}
+      <div className="tabular mt-1">
+        {t("claim.deadlineDate", { date: fmtDate(deadline), n: days })}
+      </div>
     </div>
   );
 }
@@ -69,10 +81,12 @@ export function ClaimPage() {
   const [selected, setSelected] = useState<number[]>([]);
   const [activeMatch, setActiveMatch] = useState<string | null>(null);
   const [deadline, setDeadline] = useState<string | null>(null);
+  const [missing, setMissing] = useState<MissingItem[]>([]);
   const [violations, setViolations] = useState<GuardError["violations"] | null>(null);
   const [needConfirm, setNeedConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exportNote, setExportNote] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -84,6 +98,7 @@ export function ClaimPage() {
       const c = await api.getCase(caseId, token);
       setData(c);
       setDeadline(c.response_deadline);
+      setMissing(await api.getMissing(caseId, token));
       if (c.receipt_document_id) {
         const [ls, url] = await Promise.all([
           api.getReceiptLines(caseId, token, c.receipt_document_id),
@@ -110,15 +125,16 @@ export function ClaimPage() {
     load();
   }, [load]);
 
-  async function download() {
+  async function download(format: "docx" | "pdf") {
     if (!token) return;
-    const blob = await api.exportClaim(caseId, token, "docx");
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `pretenziya_case_${caseId}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setExportNote(null);
+    try {
+      const blob = await api.exportClaim(caseId, token, format);
+      saveBlob(blob, `pretenziya_case_${caseId}.${format}`);
+    } catch (e) {
+      // 422 (guard), 503 (no LibreOffice) etc.: show the server's message.
+      setExportNote(e instanceof ApiError ? e.message : t("common.error"));
+    }
   }
 
   async function markSent() {
@@ -181,9 +197,13 @@ export function ClaimPage() {
       <h1 className="text-[28px] font-bold leading-9">{t("claim.title")}</h1>
       <div className="mt-4"><Timer deadline={deadline} /></div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[3fr_2fr]">
-        {/* Left: claim text */}
-        <section className="rounded-card border border-border bg-surface p-5">
+      {!violations && claim && data && <ClaimSummary data={data} />}
+      {!violations && claim && missing.length > 0 && <AttachChecklist items={missing} />}
+
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
+        {/* Left: claim text — bounded with its own scroll on desktop so the
+            long legal section doesn't stretch the whole page. */}
+        <section className="rounded-card border border-border bg-surface p-5 lg:max-h-[75vh] lg:overflow-y-auto">
           {violations ? (
             <div>
               <h2 className="text-lg font-semibold text-danger">{t("claim.blocked")}</h2>
@@ -225,13 +245,28 @@ export function ClaimPage() {
       </div>
 
       {!violations && claim && (
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button onClick={download}>{t("claim.download")}</Button>
-          <Button variant="secondary" onClick={markSent}>
-            {t("claim.markSent")}
-          </Button>
+        <div className="mt-6">
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => download("docx")}>{t("claim.download")}</Button>
+            <Button variant="secondary" onClick={() => download("pdf")}>
+              {t("claim.downloadPdf")}
+            </Button>
+            <Button variant="secondary" onClick={markSent}>
+              {t("claim.markSent")}
+            </Button>
+          </div>
+          {exportNote && (
+            <p className="mt-3 text-sm text-muted" role="status">
+              {exportNote}
+            </p>
+          )}
+          <p className="mt-4 text-sm text-muted">{t("claim.deliveryHint")}</p>
+          <p className="mt-1 text-xs text-muted">{t("claim.legalNote")}</p>
         </div>
       )}
+      <div className="mt-6">
+        <DeleteCaseButton caseId={caseId} />
+      </div>
     </AppShell>
   );
 }

@@ -17,6 +17,7 @@ ALLOWED_TYPES: dict[str, str] = {
     ".pdf": "application/pdf",
     ".txt": "text/plain",
     ".json": "application/json",
+    ".mp4": "video/mp4",  # defect video, stored as evidence (kind=photo), not analysed
 }
 
 

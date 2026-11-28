@@ -53,6 +53,8 @@ function fact(
     grounded,
     needs_review: !grounded,
     confirmed_by_user: confirmed,
+    ocr_source: "fixture",
+    extract_source: "fixture",
   };
 }
 
@@ -81,6 +83,7 @@ export const mockEvents: TimelineEvent[] = [
     kind: "contact",
     description: "Первое обращение к продавцу: «экран мигает и сильно греется»",
     document_id: 2,
+    message_id: "line:0",
     needs_review: true,
   },
   {
@@ -89,6 +92,7 @@ export const mockEvents: TimelineEvent[] = [
     kind: "refusal",
     description: "Отказ продавца: «вернуть деньги не можем, случай не гарантийный»",
     document_id: 2,
+    message_id: "line:3",
     needs_review: true,
   },
 ];
@@ -133,35 +137,8 @@ export const mockMissing: MissingItem[] = [
 
 export const mockChecks: CheckResult[] = [];
 
-export const mockClaimText = [
-  "ПРЕТЕНЗИЯ",
-  "",
-  "Кому: ТОО «Пример Электроникс»",
-  "От кого: [ФИО заявителя], [адрес заявителя], [контактные данные]",
-  "",
-  "Я приобрёл(а) у продавца ТОО «Пример Электроникс» товар: Смартфон X 128GB. " +
-    "Дата покупки: 05.11.2026. Стоимость товара составила 249 990,00 KZT.",
-  "В процессе эксплуатации в товаре обнаружился недостаток, товар оказался ненадлежащего качества.",
-  "",
-  "Хронология обращения:",
-  "— 05.11.2026: покупка товара.",
-  "— 06.11.2026: обращение к продавцу.",
-  "— 09.11.2026: продавец отказал в удовлетворении требования.",
-  "",
-  "Требование:",
-  "Прошу вернуть уплаченную за товар денежную сумму 249 990,00 KZT.",
-  "",
-  "Приложения:",
-  "— копия чека;",
-  "— экспорт переписки с продавцом.",
-  "",
-  "Правовое обоснование:",
-  "— Право на товар надлежащего качества: [норма уточняется юристом].",
-  "— Права потребителя при обнаружении недостатков товара: [норма уточняется юристом].",
-  "— Срок рассмотрения требования продавцом: [норма уточняется юристом].",
-  "",
-  "[ФИО заявителя], подпись, дата.",
-].join("\n");
+// Claim text comes from the real backend: see scripts/make_mock_exports.py.
+export { mockClaimText } from "./claimText";
 
 export const mockCase: CaseDetail = {
   id: 1,
@@ -177,6 +154,8 @@ export const mockCase: CaseDetail = {
       sha256: "mock",
       mime_type: "image/svg+xml",
       created_at: new Date().toISOString(),
+      ocr_source: "fixture",
+      extract_source: "fixture",
     },
     {
       id: 2,
@@ -185,6 +164,8 @@ export const mockCase: CaseDetail = {
       sha256: "mock2",
       mime_type: "text/plain",
       created_at: new Date().toISOString(),
+      ocr_source: "fixture",
+      extract_source: "fixture",
     },
   ],
   facts: mockFacts,

@@ -9,19 +9,20 @@ import {
 } from "react";
 import { ru } from "./ru";
 import { en } from "./en";
+import { kk } from "./kk";
 
-export type Lang = "ru" | "en";
-const DICTS: Record<Lang, Record<string, string>> = { ru, en };
+export type Lang = "ru" | "en" | "kk";
+const DICTS: Record<Lang, Record<string, string>> = { ru, en, kk };
 const STORAGE_KEY = "dalel:lang";
 
 function readLang(): Lang {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    if (v === "ru" || v === "en") return v;
+    if (v === "ru" || v === "en" || v === "kk") return v;
   } catch {
     /* ignore */
   }
-  return "ru";
+  return "en"; // EN by default for the pitch; RU/KK are one click away
 }
 
 interface I18n {
@@ -47,7 +48,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>) => {
-      let s = DICTS[lang][key] ?? key;
+      // Fall back to EN for any key missing in the active language (KK is a
+      // draft and may be incomplete), and only then show the key itself.
+      let s = DICTS[lang][key] ?? DICTS.en[key] ?? key;
       if (params) {
         for (const [k, v] of Object.entries(params)) {
           s = s.replace(`{${k}}`, String(v));

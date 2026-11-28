@@ -1,4 +1,4 @@
-import { ApiClient } from "./client";
+import { ApiClient, ApiError } from "./client";
 import type {
   CaseCreated,
   CaseDetail,
@@ -26,6 +26,7 @@ import {
 export class MockClient implements ApiClient {
   private facts: Fact[] = mockFacts.map((f) => ({ ...f }));
   private deadline: string | null = null;
+  private hasPhoto = false;
 
   private delay<T>(value: T): Promise<T> {
     return new Promise((resolve) => setTimeout(() => resolve(value), 180));
@@ -41,6 +42,7 @@ export class MockClient implements ApiClient {
     file: File,
     kind: DocumentKind,
   ): Promise<DocumentDto> {
+    if (kind === "photo") this.hasPhoto = true;
     return this.delay({
       id: kind === "receipt" ? 1 : 2,
       case_id: 1,
@@ -83,7 +85,12 @@ export class MockClient implements ApiClient {
   }
 
   async getMissing(): Promise<MissingItem[]> {
-    return this.delay(mockMissing);
+    // M3 closes once a defect photo has been uploaded (mirrors the backend rule).
+    return this.delay(
+      mockMissing.map((m) =>
+        m.rule_id === "M3" && this.hasPhoto ? { ...m, resolved: true } : m,
+      ),
+    );
   }
 
   async getChecks(): Promise<CheckResult[]> {
@@ -100,11 +107,25 @@ export class MockClient implements ApiClient {
     });
   }
 
-  async exportClaim(): Promise<Blob> {
-    // Mock export: a plain-text stand-in (not a real .docx).
-    return this.delay(
-      new Blob([mockClaimText], { type: "text/plain;charset=utf-8" }),
-    );
+  async exportClaim(
+    _caseId: number,
+    _token: string,
+    format: "docx" | "pdf" = "docx",
+  ): Promise<Blob> {
+    // Real files exported by the backend for the synthetic demo case
+    // (scripts/make_mock_exports.py), so Word/PDF viewers open them as-is.
+    const resp = await fetch(
+      `${import.meta.env.BASE_URL}mock/pretenziya_demo.${format}`,
+    ).catch(() => null);
+    if (!resp || !resp.ok) {
+      throw new ApiError(
+        503,
+        format === "pdf"
+          ? "PDF недоступен в демо без бэкенда. Скачайте DOCX."
+          : "Файл демо-претензии не найден в сборке.",
+      );
+    }
+    return this.delay(await resp.blob());
   }
 
   async markSent(): Promise<MarkSent> {
@@ -119,6 +140,6 @@ export class MockClient implements ApiClient {
   }
 
   async getReceiptImageUrl(): Promise<string> {
-    return this.delay("/mock/receipt-001.svg");
+    return this.delay(`${import.meta.env.BASE_URL}mock/receipt-001.svg`);
   }
 }

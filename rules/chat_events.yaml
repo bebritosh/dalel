@@ -1,0 +1,33 @@
+# Dictionary rules for detecting timeline events from chat messages.
+# No model is involved: matching is case-insensitive substring over the
+# message text. Every detected event carries the source message_id and is
+# marked needs_review=true for the user to confirm.
+#
+# Event kinds derived here:
+#   contact  - first message from the buyer (a non-seller author)
+#   reply    - first seller message that is not itself a refusal
+#   refusal  - first seller message containing a refusal phrase below
+
+refusal_keywords:
+  - "не можем"
+  - "отказ"
+  - "отказыва"
+  - "не подлежит"
+  - "не гарантийн"
+  - "не возврат"
+  - "возврат невозмож"
+  - "отказать"
+  # Kazakh (and the same phrases typed without Kazakh letters, as people
+  # often do in chats: қ->к, ү->у, і->и/i).
+  - "бас тарт"            # бас тартамыз / бас тартылды - we refuse / refused
+  - "қайтара алмай"       # қайтара алмаймыз - we cannot return (the money)
+  - "кайтара алмай"
+  - "ауыстыра алмай"      # we cannot replace
+  - "қайтарылмайды"       # not returnable
+  - "кайтарылмайды"
+  - "қайтару мүмкін емес" # return is impossible
+  - "кайтару мумкин емес"
+  - "кепілдікке жатпай"   # not covered by the warranty
+  - "кепилдикке жатпай"
+  - "кепілдік емес"       # not a warranty case
+  - "кепилдик емес"

@@ -19,8 +19,17 @@ class FixtureProvider(LlmProvider):
     are named with a 'handmade_' prefix and documented as such in the README.
     """
 
+    source = "fixture"
+
     def __init__(self, fixtures_dir: Path | None = None) -> None:
         self.fixtures_dir = fixtures_dir or FIXTURES_DIR
+
+    def has_fixture(self, sha256: str) -> bool:
+        """True if an extraction fixture (real or handmade) exists for sha256."""
+        return any(
+            (self.fixtures_dir / name).exists()
+            for name in (f"{sha256}.json", f"handmade_{sha256}.json")
+        )
 
     def extract(self, sha256: str, lines: list[OcrLine]) -> ExtractionResult:
         # Real captured live responses are stored as "{sha}.json". Handmade demo

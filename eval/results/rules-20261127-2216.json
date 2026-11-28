@@ -1,0 +1,673 @@
+{
+  "mode": "rules",
+  "timestamp": "20261127-2216",
+  "ocr_langs": "rus+eng",
+  "label": "kk-receipts",
+  "summary": {
+    "cases": 17,
+    "ocr_recall": {
+      "seller": 0.9411764705882353,
+      "date": 0.9411764705882353,
+      "total": 1.0,
+      "currency": 0.8235294117647058,
+      "item": 0.9117647058823529
+    },
+    "events_ok": 1.0,
+    "ocr_seconds_avg": 0.7,
+    "errors": 0,
+    "accuracy": {
+      "seller": 0.8823529411764706,
+      "date": 0.9411764705882353,
+      "total": 1.0,
+      "currency": 0.8235294117647058,
+      "item": 0.3235294117647059
+    },
+    "grounding": 1.0,
+    "hallucination_rate": 0.0,
+    "guard_blocked": "17/17",
+    "claim_seconds_avg": 0.7
+  },
+  "cases": [
+    {
+      "case": "case-001",
+      "kind": "clean",
+      "ocr_seconds": 0.52,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Алем Техно»\nг. Астана, ул. Сейфуллина 12\nЧек № 004512\nДата: 14.03.2026 11:05\nНоутбук Nova 15\n1 штх 389 900,00\nИТОГО: 389 900,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Алем Техно»",
+        "date": "2026-03-14",
+        "total": "389900.00",
+        "currency": "KZT",
+        "items": [
+          "Ноутбук Nova 15"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "grounded": 6,
+      "facts": 6,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.52,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-002",
+      "kind": "clean",
+      "ocr_seconds": 0.46,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ИП Бекова\nг. Шымкент, мкр. Нурсат 7\nЧек № 000087\nДата: 02.06.2026 16:48\nПылесос Vortex 2000\n1 wt x 54 990,00\nФильтр HEPA\n2 штх4 500,00\nИТОГО: 63 990,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ИП Бекова",
+        "date": "2026-06-02",
+        "total": "63990.00",
+        "currency": "KZT",
+        "items": [
+          "Фильтр HEPA"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.5
+      },
+      "grounded": 6,
+      "facts": 6,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.46,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-003",
+      "kind": "clean",
+      "ocr_seconds": 0.41,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Сары Маркет»\nг. Караганда, пр. Бухар-жырау 40\nЧек № 018233\nДата: 21.09.2026 09:30\nНаушники Pulse BT\n1 штх 27 990,00\nИТОГО: 27 990,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Сары Маркет»",
+        "date": "2026-09-21",
+        "total": "27990.00",
+        "currency": "KZT",
+        "items": [
+          "Наушники Pulse BT"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "grounded": 6,
+      "facts": 6,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.41,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-004",
+      "kind": "tilt",
+      "ocr_seconds": 0.48,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Дала Моторс»\nг. Актау, 15 мкр. д. 3\nЧек № 002901\nДата: 18.01.2026 13:20\nщины зимние R17\n4 штх 61 500,00\nИТОГО: 246 000,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Дала Моторс»",
+        "date": "2026-01-18",
+        "total": "246000.00",
+        "currency": "KZT",
+        "items": [
+          "щины зимние R17"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "grounded": 6,
+      "facts": 6,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.48,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-005",
+      "kind": "tilt",
+      "ocr_seconds": 0.47,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Жулдыз Бытовая техника»\nг. Павлодар, ул. Ломова 55\nЧек № 077410\nДата: 09.04.2026 18:02\nСтиральная машина Aqua 7\n1 штх 214 500,00\nИТОГО: 214 500,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Жулдыз Бытовая техника»",
+        "date": "2026-04-09",
+        "total": "214500.00",
+        "currency": "KZT",
+        "items": [
+          "Стиральная машина Aqua 7"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "grounded": 6,
+      "facts": 6,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.47,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-006",
+      "kind": "tilt",
+      "ocr_seconds": 0.46,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ИП Нурлан Сериков\nг. Атырау, ул. Азаттык 21\nЧек № 000342\nДата: 30.08.2026 12:15\nСмартфон Orbit SS\n1 wt 159 000,00\nИТОГО: 159 000,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ИП Нурлан Сериков",
+        "date": "2026-08-30",
+        "total": "159000.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.46,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-007",
+      "kind": "hard-glare",
+      "ocr_seconds": 0.5,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Арай Электроникс»\nг. Алматы, ул. Розыбакиева 99\nЧек № 031775\nДата: 03.10.2026 15:41\nПланшет Slate 10\n1 wT x 119 990,00\nИТОГО: 119 990,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Арай Электроникс»",
+        "date": "2026-10-03",
+        "total": "119990.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.5,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-008",
+      "kind": "hard-blur",
+      "ocr_seconds": 0.47,
+      "ocr_recall": {
+        "seller": true,
+        "date": false,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Кемел Трейд»\nг Костанай. уп Баймагамбетова 9\nЧек № 009058\nДата: 12.05 2026 10:10\nХоподильник Frost 300\n1 штх 342 000.00\nИТОГО: 342 000.00 KZT\nОплата карта\nСпасибо за покупку",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Кемел Трейд»",
+        "date": null,
+        "total": "342000.00",
+        "currency": "KZT",
+        "items": [
+          "Хоподильник Frost 300"
+        ]
+      },
+      "accuracy": {
+        "seller": true,
+        "date": false,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "grounded": 5,
+      "facts": 5,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.47,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-009",
+      "kind": "hard-small",
+      "ocr_seconds": 0.42,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.5
+      },
+      "ocr_text": "ТОО «Берекет Групп»\nг. Семей, ул. Найманбаева 31\nЧек № 055126\nДата: 07.07.2026 19:37\nee\nКофемашина Aroma One\n1 wr x 87 900,00\nYexon\n1 wT x3 200,00\nee\nИТОГО: 91 100,00 KZT\nОплата: карта\nСпасибо за покупку!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Берекет Групп»",
+        "date": "2026-07-07",
+        "total": "91100.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.42,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-010",
+      "kind": "photo-cash",
+      "ocr_seconds": 0.93,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Нур Электро»\nБИН 190340021187\nг. Алматы, ул. Жандосова 58\n3HM SWK73710533\nPHM 136270404520\nФИСКАЛЬНЫЙ ЧЕК\nПРОДАЖА\nСмена № 214 Чек № 118\nКассир: Иманова А.\n1. Микроволновка Breeze 20\n1 x 45 990,00 = 45 990,00\nИТОГО: 45 990,00\nНаличные: 50 000,00\nСдача: 4 010,00\nв т.ч. НДС 12%: 4 927,50\nФП: 5181713966\nДата: 15.10.2026 14:22:07\nВалюта: KZT\nOo: ofd-demo.kz (демо)\nОО\n. ki by ‘ r\nСПАСИБО ЗА ПОКУПКУ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Нур Электро»",
+        "date": "2026-10-15",
+        "total": "45990.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.93,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-011",
+      "kind": "photo-discount",
+      "ocr_seconds": 0.94,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 1.0
+      },
+      "ocr_text": "ИП Ахметов Д.К.\nБИН 870512301456\nг. Астана, пр. Мангилик Ел 31\nЗНМ SWK90594448\nРНМ 239993817737\nФИСКАЛЬНЫЙ ЧЕК\nПРОДАЖА\nСмена № 88 Чек № 2041\nКассир: Ахметов Д.\n1. Пылесос Storm ХЗ\n1х 74 990,00 = 74 990,00\n2. Мешки для пылесоса\n2х1 990,00 = 3 980, 00\nСумма: 78 970,00\nСкидка: -7 500, 00\nИТОГО: 71 470,00\nБанковская карта: 71 470,00\nВ Т.ч. НДС 12%: 7 657,50\nФП: 7630101946\nДата: 03.09.2026 19:47:31\nВалюта: K2T\nOPT: ofd-demo. kz (Zemo)\nOe\nПЕ\nСПАСИБО ЗА ПОКУПКУ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ИП Ахметов Д.К.",
+        "date": "2026-09-03",
+        "total": "71470.00",
+        "currency": null,
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 0.0
+      },
+      "grounded": 3,
+      "facts": 3,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.94,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-012",
+      "kind": "photo-multi",
+      "ocr_seconds": 1.03,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Kazyna Retail»\nBMH 210840009932\nт. Шымкент, УЛ. Тауке хана 104\n3HM SWK57055022\nPHM 654186381718\nФИСКАЛЬНЫЙ ЧЕК\nПРОДАЖА\nСмена № 402 Чек № 77\nКассир: ЛИ Е.\n1. Электрочайник steam 1.7\n1 x 12 990,00 = 12 990,00\n2. влендер Mix Pro\n1 x 23 490,00 = 23 490,00\n3. Тостер Crisp 2\n1 x 11 490,00 = 11 490,00\nИТОГО: 47 970,00\nБанковская карта: 47 970,00\nвт.ч. НДС 12%: 5 139,64\nФП: 4911512604\nДата: 22.08.2026 11:03:55\nВалюта: КРТ\nOoh: ofd-demo.kz (демо)\nох мы\nа\nree\nСПАСИБО ЗА ПОКУПКУ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Kazyna Retail»",
+        "date": "2026-08-22",
+        "total": "47970.00",
+        "currency": null,
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 0.0
+      },
+      "grounded": 3,
+      "facts": 3,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 1.03,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-013",
+      "kind": "photo-shadow",
+      "ocr_seconds": 0.9,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Арна Гаджет» ae\nBUH 160240017765 =\nг. Караганда, УЛ- крубаева 47 |\nЗНМ SWK37551035 Е\nРНМ 307506255592 Е\nФИСКАЛЬНЫЙ ЧЕК 4\nПРОДАЖА :\nСмена № 19 Чек № 356\nКассир: Сабитова Ts Е: |\n1. Смарт-часы Pulse Fit\n1 x 39 900,00 = 39 900, 00\nитого: _39 900,00\nНаличные: _ 40 000,0\nСдача: Е. 00,00\nв т.ч. НДС 12%: _ 4 28008\nФП: 9983717595 a\nДата: 02.11.2026 17:15:40\nВалюта: KZT 43 |\nOo: ofd-demo.kz (демо)\nOve wo |\nве\nau\nOar\nСПАСИБО ЗА ПОКУПКУ!\nи.",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Арна Гаджет» ae",
+        "date": "2026-11-02",
+        "total": "39900.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": false,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.9,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-014",
+      "kind": "photo-angle",
+      "ocr_seconds": 1.09,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 1.0
+      },
+      "ocr_text": "ТОО «Табыс Home»\nБИН 200940031210\nг. Актобе, np. Абилкайыр хана 63\n3HM SWK21626771\nPHM 729899137660\nФИСКАЛЬНЫЙ ЧЕК\nПРОДАЖА\nСмена № 145 Чек № 903\nКассир: Нурланова А.\n1. Утюг Glide 2400\n1х 18 990,00 = 18 990,00\nСумма: 18 990,00\nСкидка: -1 000,00\nИТОГО: 17 990,00\nБанковская карта: 17 990,00\nВ т.ч. НДС 12%; 1 927,50\nФП: 4058164722\nДата: 11.07.2026 12:38:02\nВалюта: К2т\nOo]: ofd-demo. kz (демо)\nOTe\nard О\nOot\nСПАСИБО ЗА ПОКУПКУ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ТОО «Табыс Home»",
+        "date": "2026-07-11",
+        "total": "17990.00",
+        "currency": null,
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": false,
+        "item": 0.0
+      },
+      "grounded": 3,
+      "facts": 3,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 1.09,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-015",
+      "kind": "photo-fold",
+      "ocr_seconds": 0.98,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ИП Жумабаева С.\nБИН 910303402318\nг. Павлодар, ул. Торайгырова 12\n3HM SWK14694260\nPHM 449109753539\nФИСКАЛЬНЫЙ ЧЕК\nПРОДАЖА\nСмена № 61 Чек № 1277\nКассир: Жумабаева С.\n1. Фен Breeze Air\n1 x 16 900,00 = 16 900,00\n2. Расческа\n1 x 2 490,00 = 2 490,00\nИТОГО: 19 390,00\nБанковская карта: 19 390,00\nв т.ч. НДС 12%: 2 077,50\nФП: 6848638084\nДата: 28.06.2026 10:05:19\nВалюта: KZT\nОФД: ofd-demo.kz (демо)\n0.; tO\nhs\nАа\noP a we\nСПАСИБО ЗА ПОКУПКУ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ИП Жумабаева С.",
+        "date": "2026-06-28",
+        "total": "19390.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.98,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-016",
+      "kind": "photo-kk-cash",
+      "ocr_seconds": 0.92,
+      "ocr_recall": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 1.0
+      },
+      "ocr_text": "ЖШС «Алтын Техника»\nБСН 200540018834\nАлматы к., Абай aur. 150\n3HM SWK14951486\nPHM 386012806751\nФИСКАЛДЫК ЧЕК\nСАТУ\nАуысым № 57 Чек № 412\nКассир: Телеуова 9.\n1. Шансоррыш Vortex 5\n1х 52 990,00 = 525990700\nЖИЫНЫ: 52 990,00\nКолма-кол: 60 000, 00\nКайтарым: 7 010,00\nонын 111нде ККС 128: 9 6177.50\nФБ: 8805358394\nКун1: 21.10.2026 16:08:44\nВалюта: KZT\nФДО: ofd-demo.kz (демо)\nObs -O\nVe =\"\nwr EE\nDapper\nСАТЫП АЛРАНЫНЫЗРА РАХМЕТ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ЖШС «Алтын Техника»",
+        "date": "2026-10-21",
+        "total": "52990.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": true,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.92,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    },
+    {
+      "case": "case-017",
+      "kind": "photo-kk-card",
+      "ocr_seconds": 0.99,
+      "ocr_recall": {
+        "seller": false,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "ocr_text": "ЖК Сэрсенбаев K.T.\nBCH 880214300527\nАстана к., Кабанбай батыр дант. 21\nЗНМ SWK43611628\nPHM 780225192457\nФИСКАЛДЫК ЧЕК\nСАТУ\nАуысым № 133 Чек № 1876\nКассир: Сэрсенбаев К.\n1. Электр шэйнег1 Aqua По\n1 x 14 990,00 = 14 990,00\n2. Toctep Crisp 2\n1 x 11 490,00 = 11 490,00\nComa: 26 480,00\nЖен1лд1к: -2 000,00\nБАРЛЫРГЫ: 24 480,00\nБанк картасы: 24 480,00\nонын iminne ККС 125: 2 622,86\nФБ: 4719382564\nKyHi: 14.09.2026 12:51:09\nВалюта: тенге\nФДО: ofd-demo.kz (демо)\nти\neters\nСАТЫП АЛРАНЫНЫЗРА РАХМЕТ!",
+      "events_ok": true,
+      "got": {
+        "seller": "ЖК Сэрсенбаев K.T.",
+        "date": "2026-09-14",
+        "total": "24480.00",
+        "currency": "KZT",
+        "items": []
+      },
+      "accuracy": {
+        "seller": false,
+        "date": true,
+        "total": true,
+        "currency": true,
+        "item": 0.0
+      },
+      "grounded": 4,
+      "facts": 4,
+      "hallucinated": 0,
+      "extract_seconds": 0.0,
+      "claim_seconds": 0.99,
+      "guard": {
+        "clean_passes": true,
+        "substituted_blocked": true
+      }
+    }
+  ]
+}

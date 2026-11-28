@@ -16,6 +16,10 @@ const BASE = process.env.BASE ?? "http://localhost:5173";
 const MODE = process.env.SHOT_MODE ?? "mock";
 const PREFIX = process.env.PREFIX ?? "";
 const DEMO = resolve(__dirname, "..", "..", "eval", "cases", "demo-001");
+// http mode chat file: WhatsApp (chat.txt) by default, Telegram via CHAT_FILE.
+const CHAT_FILE = process.env.CHAT_FILE
+  ? resolve(__dirname, "..", "..", process.env.CHAT_FILE)
+  : resolve(DEMO, "chat.txt");
 
 const VIEWPORTS = [
   { name: "1440x900", width: 1440, height: 900 },
@@ -57,13 +61,16 @@ async function runMock(browser) {
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("dalel:lang", "ru");
+      sessionStorage.setItem("case:1", "mock");
+    });
 
     await page.goto(`${BASE}/`);
     await waitText(page, "Новое дело");
     await shot(page, `upload-${vp.name}`);
 
-    await page.addInitScript(() => sessionStorage.setItem("case:1", "mock"));
-    await page.goto(`${BASE}/case/1/review?token=mock`);
+    await page.goto(`${BASE}/#/case/1/review`);
     await waitText(page, "Поля из чека");
     await shot(page, `review-${vp.name}`);
 
@@ -81,12 +88,16 @@ async function runHttp(browser) {
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("dalel:lang", "ru");
+      localStorage.setItem("dalel:consent", "1"); // synthetic demo data only
+    });
 
     await page.goto(`${BASE}/`);
     await waitText(page, "Новое дело");
     await page.setInputFiles('input[type="file"]', [
       resolve(DEMO, "receipt.png"),
-      resolve(DEMO, "chat.txt"),
+      CHAT_FILE,
     ]);
     await page.waitForTimeout(300);
     await shot(page, `http-upload-${vp.name}`);
